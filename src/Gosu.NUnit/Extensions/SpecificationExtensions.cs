@@ -83,47 +83,5 @@ namespace Gosu.NUnit.Extensions
         {
             Assert.That(actual.ToLower(), Is.StringContaining(expected.ToLower()), message);
         }
-
-        public static void ShouldFirePropertyChangedFor<TInstance>(this TInstance instance, string propertyName)
-            where TInstance : INotifyPropertyChanged
-        {
-            var values = new Dictionary<Type, Tuple<object, object>>
-                {
-                    { typeof(int), new Tuple<object, object>(1, 2)},
-                    { typeof(double), new Tuple<object, object>(1, 2)},
-                    { typeof(bool), new Tuple<object, object>(1, 2)},
-                    { typeof(float), new Tuple<object, object>(1, 2)},
-                    { typeof(decimal), new Tuple<object, object>(1, 2)},
-                    { typeof(short), new Tuple<object, object>(1, 2)},
-                    { typeof(long), new Tuple<object, object>(1, 2)},
-                    { typeof(DateTime), new Tuple<object, object>(new DateTime(2010, 1, 2), new DateTime(2010, 1, 3))},
-                    { typeof(TimeSpan), new Tuple<object, object>(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2))},
-                    { typeof(object), new Tuple<object, object>(new object(), new object())},
-                };
-
-            var propertyType = instance.GetPropertyType(propertyName);
-
-            var valueTuple = values[propertyType];
-
-            ShouldFirePropertyChangedFor(
-                instance, 
-                propertyName, 
-                x => x.SetProperty(propertyName, valueTuple.Item1), 
-                x => x.SetProperty(propertyName, valueTuple.Item2));
-        }
-
-        public static void ShouldFirePropertyChangedFor<TInstance>(this TInstance instance, string propertyName, Action<TInstance> firstSetter, Action<TInstance> secondSetter)
-            where TInstance : INotifyPropertyChanged
-        {
-            var propertyNames = new List<string>();
-
-            firstSetter.Invoke(instance);
-
-            instance.PropertyChanged += (sender, eventArgs) => propertyNames.Add(eventArgs.PropertyName);
-
-            secondSetter.Invoke(instance);
-
-            propertyNames.Contains(propertyName).ShouldBeTrue("No property changed event fired for property: " + propertyName);
-        }
     }
 }

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Gosu.Commons.Reflection;
 using NUnit.Framework;
 
@@ -11,7 +12,7 @@ namespace Gosu.Specs.Commons.Reflection
         [SetUp]
         public void SetUp()
         {
-            _instance = new Class();            
+            _instance = new Class();
         }
 
         [Test]
