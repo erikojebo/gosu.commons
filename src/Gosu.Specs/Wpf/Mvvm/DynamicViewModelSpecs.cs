@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using System.Dynamic;
+using System;
 using Gosu.NUnit.Extensions;
 using Gosu.Wpf.Mvvm;
 using Microsoft.CSharp.RuntimeBinder;
@@ -40,10 +39,7 @@ namespace Gosu.Specs.Wpf.Mvvm
         [Test]
         public void Getting_property_that_does_not_exist_throws_dynamic_invocation_exception()
         {
-            Assert.Throws<RuntimeBinderException>(() =>
-                {
-                    var unused = _viewModel.NonExistingProperty;
-                });
+            Assert.Throws<RuntimeBinderException>(() => { var unused = _viewModel.NonExistingProperty; });
         }
 
         [Test]
@@ -61,55 +57,31 @@ namespace Gosu.Specs.Wpf.Mvvm
                 x => { ((dynamic)x).Property = "new value"; });
         }
 
+        [Test]
+        public void Setting_property_to_same_value_does_not_trigger_change_notification()
+        {
+            Assert.Throws<AssertionException>(
+                () => _typedViewModel.ShouldFirePropertyChangedFor(
+                    "Property",
+                    x => { ((dynamic)x).Property = "value"; },
+                    x => { ((dynamic)x).Property = "value"; }));
+        }
+
+        [Test]
+        public void Reading_int_property_set_to_string_yields_converted_value()
+        {
+            _viewModel.IntProperty = "1";
+
+            Assert.AreEqual(1, _viewModel.IntProperty);
+        }
+
         private class TestDynamicViewModel : DynamicViewModel
         {
-            private readonly IDictionary<string, object> _value = new Dictionary<string, object>();
-
             public TestDynamicViewModel()
             {
-                CreateProperty("Property");
-                CreateProperty("Property2");
-            }
-
-            private void CreateProperty(string propertyName)
-            {
-                _value.Add(propertyName, null);
-            }
-
-            public override bool TrySetMember(SetMemberBinder binder, object value)
-            {
-                var propertyName = binder.Name;
-
-                if (!HasProperty(propertyName))
-                {
-                    return false;
-                }
-
-                _value[binder.Name] = value;
-                FirePropertyChanged(propertyName);
-                
-                return true;
-            }
-
-            public override bool TryGetMember(GetMemberBinder binder, out object result)
-            {
-                result = null;
-
-                var propertyName = binder.Name;
-
-                if (!HasProperty(propertyName))
-                {
-                    return false;
-                }
-
-                result = _value[propertyName];
-
-                return true;
-            }
-
-            private bool HasProperty(string propertyName)
-            {
-                return _value.ContainsKey(propertyName);
+                CreateProperty<string>("Property");
+                CreateProperty<string>("Property2");
+                CreateProperty<int>("IntProperty");
             }
         }
     }
