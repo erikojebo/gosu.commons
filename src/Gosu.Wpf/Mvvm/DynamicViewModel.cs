@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
 using Gosu.Commons.Dynamics;
+using Gosu.Commons.Reflection;
 
 namespace Gosu.Wpf.Mvvm
 {
@@ -38,6 +39,8 @@ namespace Gosu.Wpf.Mvvm
             property.SetValue(value);
 
             FirePropertyChanged(propertyName);
+
+            this.TryCallMethod("On" + propertyName + "Changed");
 
             return true;
         }

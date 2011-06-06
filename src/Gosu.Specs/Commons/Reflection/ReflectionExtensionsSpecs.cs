@@ -8,11 +8,15 @@ namespace Gosu.Specs.Commons.Reflection
     public class ReflectionExtensionsSpecs
     {
         private Class _instance;
+        private Class _subclassInstanceTypedAsBase;
+        private Subclass _subclassInstance;
 
         [SetUp]
         public void SetUp()
         {
             _instance = new Class();
+            _subclassInstance = new Subclass();
+            _subclassInstanceTypedAsBase = _subclassInstance;
         }
 
         [Test]
@@ -24,11 +28,27 @@ namespace Gosu.Specs.Commons.Reflection
         }
 
         [Test]
+        public void SetProperty_sets_subclass_property_for_base_class_instance()
+        {
+            _subclassInstanceTypedAsBase.SetProperty("SubclassProperty", "Expected value");
+
+            Assert.AreEqual("Expected value", _subclassInstance.SubclassProperty);
+        }
+
+        [Test]
         public void CoerceProperty_sets_string_value_without_modification()
         {
             _instance.CoerceProperty("StringProperty", "Expected value");
 
             Assert.AreEqual("Expected value", _instance.StringProperty);
+        }
+
+        [Test]
+        public void CoerceProperty_sets_subclass_property_for_base_class_instance()
+        {
+            _subclassInstanceTypedAsBase.CoerceProperty("SubclassProperty", "Expected value");
+
+            Assert.AreEqual("Expected value", _subclassInstance.SubclassProperty);
         }
 
         [Test]
@@ -53,6 +73,12 @@ namespace Gosu.Specs.Commons.Reflection
         }
 
         [Test]
+        public void HasProperty_finds_subclass_property_for_instance_typed_as_base_class()
+        {
+            Assert.IsTrue(_subclassInstanceTypedAsBase.HasProperty("SubclassProperty"));
+        }
+
+        [Test]
         public void HasProperty_returns_true_if_property_exists()
         {
             Assert.IsTrue(_instance.HasProperty("StringProperty"));
@@ -64,11 +90,62 @@ namespace Gosu.Specs.Commons.Reflection
             Assert.AreEqual(typeof(double), _instance.GetPropertyType("DoubleProperty"));
         }
 
+        [Test]
+        public void GetPropertyType_finds_subclass_property_for_instance_typed_as_base_class()
+        {
+            Assert.AreEqual(typeof(string), _subclassInstanceTypedAsBase.GetPropertyType("SubclassProperty"));
+        }
+
+        [Test]
+        public void TryCallMethod_calls_method_with_given_name()
+        {
+            _instance.TryCallMethod("Method1");
+            Assert.IsTrue(_instance.WasMethod1Called);
+        }
+
+        [Test]
+        public void TryCallMethod_returns_true_when_method_is_called()
+        {
+            Assert.IsTrue(_instance.TryCallMethod("Method1"));
+        }
+
+        [Test]
+        public void TryCallMethod_returns_false_when_method_is_not_found()
+        {
+            Assert.IsFalse(_instance.TryCallMethod("NonExistingMethod"));
+        }
+
+        [Test]
+        public void TryCallMethod_calls_subclass_method_in_instance_typed_as_base_class()
+        {
+            _subclassInstanceTypedAsBase.TryCallMethod("SubclassMethod");
+            Assert.IsTrue(_subclassInstance.WasSubclassMethodCalled);
+        }
+
         private class Class
         {
+            public bool WasMethod1Called;
+
             public string StringProperty { get; set; }
             public double DoubleProperty { get; set; }
             public int IntProperty { get; set; }
+
+            public void Method1()
+            {
+                WasMethod1Called = true;
+            }
+        }
+
+        private class Subclass : Class
+        {
+            public bool WasSubclassMethodCalled;
+
+            public string SubclassProperty { get; set; }
+            
+            public void SubclassMethod()
+            {
+                WasSubclassMethodCalled = true;
+            }
         }
     }
 }

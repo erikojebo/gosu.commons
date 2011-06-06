@@ -6,13 +6,13 @@ namespace Gosu.Commons.Reflection
 {
     public static class ReflectionExtensions
     {
-        public static void SetProperty<T>(this T instance, string propertyName, object value)
+        public static void SetProperty(this object instance, string propertyName, object value)
         {
-            var property = typeof(T).GetProperty(propertyName);
+            var property = instance.GetType().GetProperty(propertyName);
             property.SetValue(instance, value, null);
         }
 
-        public static void CoerceProperty<T>(this T instance, string propertyName, string value)
+        public static void CoerceProperty(this object instance, string propertyName, string value)
         {
             var converters = new Dictionary<Type, Func<string, object>>
                 {
@@ -21,7 +21,7 @@ namespace Gosu.Commons.Reflection
                     { typeof(double), s => double.Parse(s, CultureInfo.InvariantCulture) }
                 };
 
-            var property = typeof(T).GetProperty(propertyName);
+            var property = instance.GetType().GetProperty(propertyName);
             var propertyType = property.PropertyType;
 
             var converter = converters[propertyType];
@@ -30,14 +30,28 @@ namespace Gosu.Commons.Reflection
             instance.SetProperty(propertyName, coercedValue);
         }
 
-        public static bool HasProperty<T>(this T instance, string propertyName)
+        public static bool HasProperty(this object instance, string propertyName)
         {
-            return typeof(T).GetProperty(propertyName) != null;
+            return instance.GetType().GetProperty(propertyName) != null;
         }
 
-        public static Type GetPropertyType<T>(this T instance, string propertyName)
+        public static Type GetPropertyType(this object instance, string propertyName)
         {
-            return typeof(T).GetProperty(propertyName).PropertyType;
+            return instance.GetType().GetProperty(propertyName).PropertyType;
+        }
+
+        public static bool TryCallMethod(this object instance, string methodName)
+        {
+            var method = instance.GetType().GetMethod(methodName);
+
+            if (method == null)
+            {
+                return false;
+            }
+
+            method.Invoke(instance, null);
+
+            return true;
         }
     }
 }

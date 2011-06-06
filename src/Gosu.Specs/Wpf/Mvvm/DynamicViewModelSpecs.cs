@@ -75,13 +75,27 @@ namespace Gosu.Specs.Wpf.Mvvm
             Assert.AreEqual(1, _viewModel.IntProperty);
         }
 
-        private class TestDynamicViewModel : DynamicViewModel
+        [Test]
+        public void Calls_OnPropertyChanged_when_property_is_changed()
         {
+            _viewModel.IntProperty = 1;
+            _typedViewModel.WasOnIntPropertyChangedCalled.ShouldBeTrue();
+        }
+
+        public class TestDynamicViewModel : DynamicViewModel
+        {
+            public bool WasOnIntPropertyChangedCalled;
+
             public TestDynamicViewModel()
             {
                 CreateProperty<string>("Property");
                 CreateProperty<string>("Property2");
                 CreateProperty<int>("IntProperty");
+            }
+
+            public void OnIntPropertyChanged()
+            {
+                WasOnIntPropertyChangedCalled = true;
             }
         }
     }
