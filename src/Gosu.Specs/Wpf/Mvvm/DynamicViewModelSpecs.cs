@@ -82,7 +82,25 @@ namespace Gosu.Specs.Wpf.Mvvm
             _typedViewModel.WasOnIntPropertyChangedCalled.ShouldBeTrue();
         }
 
-        public class TestDynamicViewModel : DynamicViewModel
+        [Test]
+        public void Property_can_be_set_to_value_of_custom_type()
+        {
+            var expected = new CustomClass();
+
+            _viewModel.CustomProperty = expected;
+            Assert.AreSame(expected, _viewModel.CustomProperty);
+        }
+
+        [Test]
+        public void Interface_property_can_be_set_to_value_of_implementing_type()
+        {
+            var expected = new CustomClass();
+
+            _viewModel.CustomInterfaceProperty = expected;
+            Assert.AreSame(expected, _viewModel.CustomInterfaceProperty);
+        }
+
+        private class TestDynamicViewModel : DynamicViewModel
         {
             public bool WasOnIntPropertyChangedCalled;
 
@@ -91,6 +109,8 @@ namespace Gosu.Specs.Wpf.Mvvm
                 CreateProperty<string>("Property");
                 CreateProperty<string>("Property2");
                 CreateProperty<int>("IntProperty");
+                CreateProperty<CustomClass>("CustomProperty");
+                CreateProperty<ICustomInterface>("CustomInterfaceProperty");
             }
 
             public void OnIntPropertyChanged()
@@ -98,5 +118,9 @@ namespace Gosu.Specs.Wpf.Mvvm
                 WasOnIntPropertyChangedCalled = true;
             }
         }
+
+        private class CustomClass : ICustomInterface {}
+        private interface ICustomInterface { }
     }
+
 }

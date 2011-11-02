@@ -50,7 +50,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commons\Comparers\PropertyComparerSpecs.cs" />
+    <Compile Include="Commons\Console\ArgumentListSpecs.cs" />
+    <Compile Include="Commons\DataStructures\MaybeSpecs.cs" />
     <Compile Include="Commons\Extensions\EnumerableExtensionsSpecs.cs" />
+    <Compile Include="Commons\Extensions\StringExtensionsSpecs.cs" />
     <Compile Include="Commons\Reflection\ReflectionExtensionsSpecs.cs" />
     <Compile Include="NUnit\PropertyChangedAssertionSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

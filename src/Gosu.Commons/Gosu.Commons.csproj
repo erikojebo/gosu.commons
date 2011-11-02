@@ -44,11 +44,16 @@
     <Compile Include="Comparers\ComparerExtensions.cs" />
     <Compile Include="Comparers\ComparerWrapper.cs" />
     <Compile Include="Comparers\PropertyComparer.cs" />
+    <Compile Include="Console\ArgumentFlag.cs" />
+    <Compile Include="Console\ArgumentList.cs" />
+    <Compile Include="DataStructures\Maybe.cs" />
+    <Compile Include="DataStructures\MaybeExtensions.cs" />
     <Compile Include="Dynamics\FailedInvocationResult.cs" />
     <Compile Include="Dynamics\HookableDynamicObject.cs" />
     <Compile Include="Dynamics\InvocationResult.cs" />
     <Compile Include="Dynamics\SuccessfulInvocationResult.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\ReflectionExtensions.cs" />
   </ItemGroup>

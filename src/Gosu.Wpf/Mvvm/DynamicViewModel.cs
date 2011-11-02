@@ -13,6 +13,11 @@ namespace Gosu.Wpf.Mvvm
         private DynamicPropertyCollection _properties = new DynamicPropertyCollection();
 
         public event PropertyChangedEventHandler PropertyChanged;
+        
+        protected dynamic This
+        {
+            get { return this; }
+        }
 
         protected void CreateProperty<T>(string propertyName)
         {
@@ -98,7 +103,14 @@ namespace Gosu.Wpf.Mvvm
 
             public override void SetValue(object value)
             {
-                _propertyValue = (T)Convert.ChangeType(value, typeof(T));
+                if (typeof(T).IsAssignableFrom(value.GetType()))
+                {
+                    _propertyValue = (T)value;
+                }
+                else
+                {
+                    _propertyValue = (T)Convert.ChangeType(value, typeof(T));                    
+                }
             }
         }
 

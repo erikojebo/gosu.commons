@@ -67,6 +67,36 @@ namespace Gosu.Specs.Commons.Reflection
         }
 
         [Test]
+        public void CoercePropertyDefaultingMissingValues_sets_property_to_value_when_value_is_non_empty()
+        {
+            _instance.CoercePropertyDefaultingMissingValues("DoubleProperty", "1.23");
+            Assert.AreEqual(1.23, _instance.DoubleProperty);
+        }
+
+        [Test]
+        public void CoercePropertyDefaultingMissingValues_sets_double_to_zero_for_null_value()
+        {
+            _instance.CoercePropertyDefaultingMissingValues("DoubleProperty", null);
+            Assert.AreEqual(0, _instance.DoubleProperty);
+        }
+
+        [Test]
+        public void CoercePropertyDefaultingMissingValues_sets_double_to_zero_for_empty_value()
+        {
+            _instance.CoercePropertyDefaultingMissingValues("DoubleProperty", "");
+            Assert.AreEqual(0, _instance.DoubleProperty);
+        }
+        
+        [Test]
+        public void CoercePropertyDefaultingMissingValues_resets_double_to_zero_for_empty_value()
+        {
+            _instance.DoubleProperty = 1;
+
+            _instance.CoercePropertyDefaultingMissingValues("DoubleProperty", "");
+            Assert.AreEqual(0, _instance.DoubleProperty);
+        }
+
+        [Test]
         public void HasProperty_returns_false_if_property_does_not_exist()
         {
             Assert.IsFalse(_instance.HasProperty("NonExistingProperty"));
@@ -120,6 +150,40 @@ namespace Gosu.Specs.Commons.Reflection
         {
             _subclassInstanceTypedAsBase.TryCallMethod("SubclassMethod");
             Assert.IsTrue(_subclassInstance.WasSubclassMethodCalled);
+        }
+
+        [Test]
+        public void GetDefaultValue_returns_null_for_reference_type()
+        {
+            var defaultValue = _instance.GetType().GetDefaultValue();
+
+            Assert.IsNull(defaultValue);
+        }
+
+        [Test]
+        public void GetDefaultValue_returns_zero_for_double()
+        {
+            var defaultValue = typeof(double).GetDefaultValue();
+
+            Assert.AreEqual(0, defaultValue);
+        }
+
+        [Test]
+        public void ResetToDefaultValue_sets_reference_property_to_null()
+        {
+            _instance.StringProperty = "value";
+            _instance.ResetToDefaultValue("StringProperty");
+
+            Assert.IsNull(_instance.StringProperty);
+        }
+
+        [Test]
+        public void ResetToDefaultValue_sets_double_property_to_zero()
+        {
+            _instance.DoubleProperty = 1;
+            _instance.ResetToDefaultValue("DoubleProperty");
+
+            Assert.AreEqual(0, _instance.DoubleProperty);
         }
 
         private class Class

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Gosu.Commons.Extensions;
 
 namespace Gosu.Commons.Reflection
 {
@@ -10,6 +11,16 @@ namespace Gosu.Commons.Reflection
         {
             var property = instance.GetType().GetProperty(propertyName);
             property.SetValue(instance, value, null);
+        }
+
+        public static void CoercePropertyDefaultingMissingValues(this object instance, string propertyName, string value)
+        {
+            instance.ResetToDefaultValue(propertyName);
+
+            if (!value.IsNullOrEmpty())
+            {
+                instance.CoerceProperty(propertyName, value);
+            }
         }
 
         public static void CoerceProperty(this object instance, string propertyName, string value)
@@ -40,6 +51,14 @@ namespace Gosu.Commons.Reflection
             return instance.GetType().GetProperty(propertyName).PropertyType;
         }
 
+        public static void ResetToDefaultValue(this object instance, string propertyName)
+        {
+            var propertyType = instance.GetPropertyType(propertyName);
+            var defaultValueForProperty = propertyType.GetDefaultValue();
+        
+            instance.SetProperty(propertyName, defaultValueForProperty);
+        }
+
         public static bool TryCallMethod(this object instance, string methodName)
         {
             var method = instance.GetType().GetMethod(methodName);
@@ -52,6 +71,16 @@ namespace Gosu.Commons.Reflection
             method.Invoke(instance, null);
 
             return true;
+        }
+
+        public static object GetDefaultValue(this Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+
+            return null;
         }
     }
 }
