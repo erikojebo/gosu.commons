@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Gosu.Commons.Console;
 using NUnit.Framework;
 
@@ -97,6 +94,54 @@ namespace Gosu.Specs.Commons.Console
             var arguments = new ArgumentList("-flag");
 
             Assert.IsTrue(arguments.GetFlag("nonexisting").IsNothing);
+        }
+
+        [Test]
+        public void Strings_following_flag_are_values_of_that_flag()
+        {
+            var arguments = new ArgumentList("-flag", "value1", "value2");
+
+            var flag = arguments.GetFlag("flag").Value;
+
+            Assert.IsTrue(flag.HasValues);
+            Assert.AreEqual(2, flag.Values.Count);
+        }
+
+        [Test]
+        public void Flag_without_following_values_has_no_values()
+        {
+            var arguments = new ArgumentList("-flag");
+
+            var flag = arguments.GetFlag("flag").Value;
+
+            Assert.IsFalse(flag.HasValues);
+            Assert.AreEqual(0, flag.Values.Count);
+        }
+
+        [Test]
+        public void Flag_followed_by_flag_has_no_values()
+        {
+            var arguments = new ArgumentList("-flag1", "-flag2");
+
+            var flag = arguments.GetFlag("flag1").Value;
+
+            Assert.IsFalse(flag.HasValues);
+        }
+
+        [Test]
+        public void Multiple_flags_with_values_can_appear_after_each_other()
+        {
+            var arguments = new ArgumentList("-flag1", "value1", "-flag2", "value2", "value3");
+
+            var flag1 = arguments.GetFlag("flag1").Value;
+            var flag2 = arguments.GetFlag("flag2").Value;
+
+            Assert.AreEqual(1, flag1.Values.Count);
+            Assert.AreEqual(2, flag2.Values.Count);
+
+            Assert.AreEqual("value1", flag1.Values[0]);
+            Assert.AreEqual("value2", flag2.Values[0]);
+            Assert.AreEqual("value3", flag2.Values[1]);
         }
     }
 }

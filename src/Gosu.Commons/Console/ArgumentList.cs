@@ -7,15 +7,32 @@ namespace Gosu.Commons.Console
 {
     public class ArgumentList
     {
-        private readonly IEnumerable<ArgumentFlag> _flags;
+        private readonly IList<ArgumentFlag> _flags = new List<ArgumentFlag>();
+        private readonly string[] _args;
 
         public ArgumentList(params string[] args)
         {
-            var values = args.TakeWhile(x => !IsFlag(x));
+            _args = args;
+
+            IEnumerable<string> values = GetValuesStartingAt(0);
 
             Values = new ReadOnlyCollection<string>(values.ToList());
 
-            _flags = args.Where(IsFlag).Select(x => new ArgumentFlag(x));
+            for (int i = 0; i < args.Length; i++)
+            {
+                var value = args[i];
+
+                if (IsFlag(value))
+                {
+                    var flagValues = GetValuesStartingAt(i + 1);
+                    _flags.Add(new ArgumentFlag(value, flagValues));
+                }
+            }
+        }
+
+        private IEnumerable<string> GetValuesStartingAt(int index)
+        {
+            return _args.Skip(index).TakeWhile(x => !IsFlag(x));
         }
 
         private bool IsFlag(string x)

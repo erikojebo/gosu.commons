@@ -1,9 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using Gosu.Commons.Reflection;
 using NUnit.Framework;
 
 namespace Gosu.NUnit.Extensions
@@ -19,12 +16,12 @@ namespace Gosu.NUnit.Extensions
         {
             Assert.IsNull(actual, message);
         }
-        
+
         public static void ShouldEqual(this object actual, object expected, string message = null)
         {
             Assert.AreEqual(expected, actual, message);
         }
-        
+
         public static void ShouldBeLessThan(this object actual, object other, string message = null)
         {
             Assert.That(actual, Is.LessThan(other), message);
@@ -42,7 +39,7 @@ namespace Gosu.NUnit.Extensions
 
         public static void ShouldBe<T>(this object actual, string message = null)
         {
-            Assert.IsInstanceOf<T>(actual, message);            
+            Assert.IsInstanceOf<T>(actual, message);
         }
 
         public static void ShouldBeEquivalentTo<T>(this IEnumerable<T> actual, IEnumerable<T> expected, string message = null)
@@ -78,7 +75,7 @@ namespace Gosu.NUnit.Extensions
         {
             Assert.That(actual, Is.StringContaining(expected), message);
         }
-        
+
         public static void ShouldContainStringIgnoringCase(this string actual, string expected, string message = null)
         {
             Assert.That(actual.ToLower(), Is.StringContaining(expected.ToLower()), message);
