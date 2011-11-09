@@ -1,0 +1,1 @@
+cp ../src/Gosu.Commons/bin/Release/Gosu.Commons.dll package/lib/net40/

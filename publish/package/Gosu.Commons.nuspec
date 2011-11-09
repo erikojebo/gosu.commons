@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Gosu.Commons</id>
+    <version>1.0.1</version>
+    <authors>Erik Öjebo</authors>
+    <owners>Erik Öjebo</owners>
+    <projectUrl>https://github.com/erikojebo/gosu.commons</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Lots of useful stuff for doing all kinds of thins in .NET</description>
+    <releaseNotes>Improved console argument parsing</releaseNotes>
+    <copyright>Copyright 2011</copyright>
+    <tags>.net helpers utils gosu commons reflection dynamic</tags>
+  </metadata>
+</package>

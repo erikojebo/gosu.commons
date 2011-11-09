@@ -143,5 +143,65 @@ namespace Gosu.Specs.Commons.Console
             Assert.AreEqual("value2", flag2.Values[0]);
             Assert.AreEqual("value3", flag2.Values[1]);
         }
+
+        [Test]
+        public void Retrieving_flag_value_directly_returns_nothing_for_missing_flag()
+        {
+            var arguments = new ArgumentList();
+
+            var value = arguments.GetFlagValue("missingflag");
+
+            Assert.IsTrue(value.IsNothing);
+        }
+
+        [Test]
+        public void Retrieving_flag_value_directly_returns_first_flag_value()
+        {
+            var arguments = new ArgumentList("-flag", "value1", "value2");
+
+            var flagValue = arguments.GetFlagValue("flag");
+
+            Assert.AreEqual("value1", flagValue.Value);
+        }
+
+        [Test]
+        public void Retrieving_flag_value_directly_returns_nothing_for_flag_without_values()
+        {
+            var arguments = new ArgumentList("-flag");
+
+            var flagValue = arguments.GetFlagValue("flag");
+
+            Assert.IsTrue(flagValue.IsNothing);
+        }
+
+        [Test]
+        public void Retrieving_flag_value_with_default_value_returns_first_flag_value()
+        {
+            var arguments = new ArgumentList("-flag", "value1", "value2");
+
+            var value = arguments.GetFlagValueOrDefault("flag", "default");
+
+            Assert.AreEqual("value1", value);
+        }
+
+        [Test]
+        public void Retrieving_flag_value_with_default_returns_default_for_flag_without_values()
+        {
+            var arguments = new ArgumentList("-flag");
+
+            var value = arguments.GetFlagValueOrDefault("flag", "default");
+
+            Assert.AreEqual("default", value);
+        }
+
+        [Test]
+        public void Retrieving_flag_value_with_default_returns_default_for_missing_flag()
+        {
+            var arguments = new ArgumentList();
+
+            var value = arguments.GetFlagValueOrDefault("flag", "default");
+
+            Assert.AreEqual("default", value);
+        }
     }
 }

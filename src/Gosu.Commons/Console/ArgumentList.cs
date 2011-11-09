@@ -58,5 +58,29 @@ namespace Gosu.Commons.Console
 
             return flag.ToMaybe();
         }
+
+        public Maybe<string> GetFlagValue(string flagName)
+        {
+            var flag = GetFlag(flagName);
+
+            if (flag.IsNothing || !flag.Value.HasValues)
+            {
+                return Maybe<string>.Nothing;
+            }
+
+            return flag.Value.Values[0].ToMaybe();
+        }
+
+        public string GetFlagValueOrDefault(string flagName, string defaultValue)
+        {
+            var flagValue = GetFlagValue(flagName);
+
+            if (flagValue.HasValue)
+            {
+                return flagValue.Value;
+            }
+
+            return defaultValue;
+        }
     }
 }

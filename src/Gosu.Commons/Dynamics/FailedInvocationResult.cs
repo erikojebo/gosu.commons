@@ -2,6 +2,7 @@
 {
     public class FailedInvocationResult : InvocationResult
     {
-        public FailedInvocationResult() : base(false, null) {}
+        public FailedInvocationResult() 
+            : base(wasInvocationSuccessful: false, returnValue: null) {}
     }
 }
