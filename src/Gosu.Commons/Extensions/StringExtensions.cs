@@ -6,5 +6,15 @@ namespace Gosu.Commons.Extensions
         {
             return string.IsNullOrEmpty(value);
         }
+
+        public static string TrimEnd(this string s, string suffix)
+        {
+            if (s.EndsWith(suffix))
+            {
+                return s.Substring(0, s.Length - suffix.Length);
+            }
+
+            return s;
+        }
     }
 }

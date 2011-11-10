@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Xml.Linq;
 using Gosu.Commons.Dynamics;
+using Gosu.Commons.Extensions;
 
 namespace Gosu.Commons.Parsing
 {
@@ -38,39 +39,29 @@ namespace Gosu.Commons.Parsing
 
         private List<DynamicXmlElement> GetChildElements(string name)
         {
+            IEnumerable<XElement> children = new List<XElement>();
+
             if (name.EndsWith("ies"))
             {
-                var substring = name.Substring(0, name.Length - 3) + "y";
+                var substring = name.TrimEnd("ies") + "y";
 
-                var elements = _element.Elements(substring);
-
-                if (elements.Any())
-                {
-                    return elements.Select(x => new DynamicXmlElement(x)).ToList();
-                }
+                children = _element.Elements(substring);
             }
             else if (name.EndsWith("es"))
             {
-                var substring = name.Substring(0, name.Length - 2);
+                var substring = name.TrimEnd("es");
 
-                var elements = _element.Elements(substring);
-
-                if (elements.Any())
-                {
-                    return elements.Select(x => new DynamicXmlElement(x)).ToList();
-                }
+                children = _element.Elements(substring);
             }
 
-            var childName = name.TrimEnd('s');
-
-            var childElements = _element.Elements(childName);
-
-            if (childElements.Any())
+            if (!children.Any())
             {
-                return childElements.Select(x => new DynamicXmlElement(x)).ToList();
+                var childName = name.TrimEnd('s');
+
+                children = _element.Elements(childName);
             }
 
-            return new List<DynamicXmlElement>();
+            return children.Select(x => new DynamicXmlElement(x)).ToList();
         }
     }
 }
