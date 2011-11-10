@@ -64,6 +64,68 @@ namespace Gosu.Specs.Commons.Parsing
             Assert.AreEqual("person 2", people.Persons[2].Name);
         }
 
+        [Test]
+        public void Category_child_elements_can_be_accessed_through_Categories_property()
+        {
+            var root = _parser.Parse(@"
+<Root>
+    <Category Name='category 0' />
+    <Category Name='category 1' />
+</Root>
+");
+    
+            Assert.AreEqual(2, root.Categories.Count);
+            Assert.AreEqual("category 0", root.Categories[0].Name);
+            Assert.AreEqual("category 1", root.Categories[1].Name);
+        }
+
+        [Test]
+        public void Class_child_elements_can_be_accessed_through_Classes_property()
+        {
+            var root = _parser.Parse(@"
+<Root>
+    <Class Name='class 0' />
+    <Class Name='class 1' />
+</Root>
+");
+
+            Assert.AreEqual(2, root.Classes.Count);
+            Assert.AreEqual("class 0", root.Classes[0].Name);
+            Assert.AreEqual("class 1", root.Classes[1].Name);
+        }
+
+        [Test]
+        public void Tube_child_elements_can_be_accessed_through_Tubes_property()
+        {
+            var root = _parser.Parse(@"
+<Root>
+    <Tube Name='tube 0' />
+    <Tube Name='tube 1' />
+</Root>
+");
+
+            Assert.AreEqual(2, root.Tubes.Count);
+            Assert.AreEqual("tube 0", root.Tubes[0].Name);
+            Assert.AreEqual("tube 1", root.Tubes[1].Name);
+        }
+
+        [Test]
+        public void Octupus_child_elements_can_be_accessed_through_OctupusElements_property()
+        {
+            Assert.Fail("Not implemented");
+        }
+
+        [Test]
+        public void String_child_elements_can_be_accessed_through_collection_property()
+        {
+            Assert.Fail("Not implemented");
+        }
+
+        [Test]
+        public void String_representation_of_int_can_be_assigned_to_int_property()
+        {
+            Assert.Fail("Not implemented");
+        }
 
         // FUTURE TEST CASES:
 
