@@ -15,6 +15,12 @@ namespace Gosu.Commons.Parsing
             _element = element;
         }
 
+        public List<DynamicXmlElement> Elements(string name)
+        {
+            var elements = _element.Elements(name);
+            return GetDynamicXmlElements(elements);
+        }
+
         protected override InvocationResult PropertyMissing(string name)
         {
             var attribute = _element.Attribute(name);
@@ -41,27 +47,39 @@ namespace Gosu.Commons.Parsing
         {
             IEnumerable<XElement> children = new List<XElement>();
 
-            if (name.EndsWith("ies"))
+            var childName = name.TrimEnd('s');
+
+            children = _element.Elements(childName);
+
+            if (children.IsEmpty() && name.EndsWith("Elements"))
+            {
+                var substring = name.TrimEnd("Elements");
+                children = _element.Elements(substring);
+            }
+            
+            if (children.IsEmpty() && name.EndsWith("ies"))
             {
                 var substring = name.TrimEnd("ies") + "y";
-
                 children = _element.Elements(substring);
             }
-            else if (name.EndsWith("es"))
+            
+            if (children.IsEmpty() && name.EndsWith("es"))
             {
                 var substring = name.TrimEnd("es");
-
                 children = _element.Elements(substring);
             }
 
-            if (!children.Any())
-            {
-                var childName = name.TrimEnd('s');
+            return GetDynamicXmlElements(children);
+        }
 
-                children = _element.Elements(childName);
-            }
+        private List<DynamicXmlElement> GetDynamicXmlElements(IEnumerable<XElement> elements)
+        {
+            return elements.Select(x => new DynamicXmlElement(x)).ToList();
+        }
 
-            return children.Select(x => new DynamicXmlElement(x)).ToList();
+        public static implicit operator string (DynamicXmlElement x)
+        {
+            return x._element.Value;
         }
     }
 }

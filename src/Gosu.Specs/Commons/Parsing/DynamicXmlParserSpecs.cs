@@ -112,13 +112,49 @@ namespace Gosu.Specs.Commons.Parsing
         [Test]
         public void Octupus_child_elements_can_be_accessed_through_OctupusElements_property()
         {
-            Assert.Fail("Not implemented");
+            var root = _parser.Parse(@"
+<Root>
+    <Octupus Name='octupus 0' />
+    <Octupus Name='octupus 1' />
+</Root>
+");
+
+            Assert.AreEqual(2, root.OctupusElements.Count);
+            Assert.AreEqual("octupus 0", root.OctupusElements[0].Name);
+            Assert.AreEqual("octupus 1", root.OctupusElements[1].Name);
+        }
+
+        [Test]
+        public void Elements_with_names_colliding_with_pluralization_conventions_can_be_accessed_through_elements_method()
+        {
+            var root = _parser.Parse(@"
+<Root>
+    <Classes Name='classes 0' />
+    <Categories Name='categories 0' />
+    <Persons Name='persons 0' />
+    <ChildElements Name='child elements 0' />
+</Root>
+");
+
+            Assert.AreEqual(1, root.Elements("Classes").Count);
+            Assert.AreEqual(1, root.Elements("Categories").Count);
+            Assert.AreEqual(1, root.Elements("Persons").Count);
+            Assert.AreEqual(1, root.Elements("ChildElements").Count);
         }
 
         [Test]
         public void String_child_elements_can_be_accessed_through_collection_property()
         {
-            Assert.Fail("Not implemented");
+            var root = _parser.Parse(@"
+<Root>
+    <Category>category 0</Category>
+    <Category>category 1</Category>
+</Root>
+");
+
+            Assert.AreEqual(2, root.Categories.Count);
+            Assert.AreEqual("category 0", (string)root.Categories[0]);
+            Assert.AreEqual("category 1", (string)root.Categories[1]);
         }
 
         [Test]
@@ -127,19 +163,7 @@ namespace Gosu.Specs.Commons.Parsing
             Assert.Fail("Not implemented");
         }
 
-        // FUTURE TEST CASES:
-
-        /* Child elements that are simple strings:
-         <Persons>
-           <Person>person 0</Person>
-           <Person>person 1</Person>
-           <Person>person 2</Person>
-         </Persons>
-         */
-
-        // Collections ending with 'y': <Root><Category /><Category /><Category /></Root>
-        //                              root.Categories...
-
+    
         // Implicit casting to int, double, datetime, timespan, decimal, bool, user defined type
 
         // Specifying custom conversions for different types
