@@ -63,5 +63,23 @@ namespace Gosu.Specs.Commons.Parsing
             Assert.AreEqual("person 1", people.Persons[1].Name);
             Assert.AreEqual("person 2", people.Persons[2].Name);
         }
+
+
+        // FUTURE TEST CASES:
+
+        /* Child elements that are simple strings:
+         <Persons>
+           <Person>person 0</Person>
+           <Person>person 1</Person>
+           <Person>person 2</Person>
+         </Persons>
+         */
+
+        // Collections ending with 'y': <Root><Category /><Category /><Category /></Root>
+        //                              root.Categories...
+
+        // Implicit casting to int, double, datetime, timespan, decimal, bool, user defined type
+
+        // Specifying custom conversions for different types
     }
 }
