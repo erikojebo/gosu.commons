@@ -7,38 +7,32 @@ namespace Gosu.Commons.Parsing
     public class ConvertibleStringValue : HookableDynamicObject
     {
         private readonly string _value;
-        private Dictionary<Type, Func<string, object>> _converters;
+        private readonly ConverterRegistry _converterRegistry;
 
-        public ConvertibleStringValue(string value)
+        public ConvertibleStringValue(string value, ConverterRegistry converterRegistry)
         {
             _value = value;
-            _converters = new Dictionary<Type, Func<string, object>>
-                {
-                    { typeof(int), s => int.Parse(s) },
-                    { typeof(double), s => double.Parse(s) },
-                    { typeof(decimal), s => decimal.Parse(s) },
-                    { typeof(float), s => float.Parse(s) },
-                    { typeof(DateTime), s => DateTime.Parse(s) },
-                    { typeof(TimeSpan), s => TimeSpan.Parse(s) },
-                    { typeof(bool), s => bool.Parse(s) },
-                    { typeof(String), s => s }
-                };
-        }
-
-        public void SetConverter(Type type, Func<string, object> converter)
-        {
-            _converters[type] = converter;
+            _converterRegistry = converterRegistry;
         }
 
         protected override InvocationResult ConvertionMissing(Type type, ConvertionMode conversionMode)
         {
-            if (_converters.ContainsKey(type))
+            if (CanConvertTo(type))
             {
-                return new SuccessfulInvocationResult(_converters[type](_value));
+                return new SuccessfulInvocationResult(Convert(type));
             }
 
             return new FailedInvocationResult();
         }
 
+        public object Convert(Type type)
+        {
+            return _converterRegistry.Convert(type, _value);
+        }
+
+        public bool CanConvertTo(Type type)
+        {
+            return _converterRegistry.HasConverterFor(type);
+        }
     }
 }

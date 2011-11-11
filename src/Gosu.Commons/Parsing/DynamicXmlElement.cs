@@ -10,7 +10,6 @@ namespace Gosu.Commons.Parsing
     public class DynamicXmlElement : HookableDynamicObject
     {
         private readonly XElement _element;
-        private readonly Dictionary<Type, Func<string, object>> _converters;
         private readonly ConverterRegistry _converterRegistry = new ConverterRegistry();
 
         public DynamicXmlElement(XElement element)
@@ -25,18 +24,6 @@ namespace Gosu.Commons.Parsing
             _converterRegistry.Register<TimeSpan>(s => TimeSpan.Parse(s));
             _converterRegistry.Register<bool>(s => bool.Parse(s));
             _converterRegistry.Register<String>(s => s);
-
-            _converters = new Dictionary<Type, Func<string, object>>
-                {
-                    { typeof(int), s => int.Parse(s) },
-                    { typeof(double), s => double.Parse(s) },
-                    { typeof(decimal), s => decimal.Parse(s) },
-                    { typeof(float), s => float.Parse(s) },
-                    { typeof(DateTime), s => DateTime.Parse(s) },
-                    { typeof(TimeSpan), s => TimeSpan.Parse(s) },
-                    { typeof(bool), s => bool.Parse(s) },
-                    { typeof(String), s => s }
-                };
         }
 
         public List<DynamicXmlElement> Elements(string name)
@@ -53,13 +40,7 @@ namespace Gosu.Commons.Parsing
 
             if (attribute != null)
             {
-                var convertibleValue = new ConvertibleStringValue(attribute.Value);
-
-                foreach (var type in _converters.Keys)
-                {
-                    convertibleValue.SetConverter(type, _converters[type]);
-                }
-
+                var convertibleValue = new ConvertibleStringValue(attribute.Value, _converterRegistry);
                 return new SuccessfulInvocationResult(convertibleValue);
             }
             if (childElement != null)
@@ -110,15 +91,18 @@ namespace Gosu.Commons.Parsing
 
         protected override InvocationResult ConvertionMissing(Type type, ConvertionMode conversionMode)
         {
-            if (_converterRegistry.HasConverterFor(type))
-                return new SuccessfulInvocationResult(_converterRegistry.Convert(type, _element.Value));
+            var value = new ConvertibleStringValue(_element.Value, _converterRegistry);
+
+            if (value.CanConvertTo(type))
+            {
+                return new SuccessfulInvocationResult(value.Convert(type));
+            }
 
             return new FailedInvocationResult();
         }
 
         public void SetConverter(Type type, Func<string, object> converter)
         {
-            _converters[type] = converter;
             _converterRegistry.Register(type, converter);
         }
     }
