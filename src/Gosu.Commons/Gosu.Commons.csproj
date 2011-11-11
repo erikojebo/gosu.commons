@@ -52,6 +52,7 @@
     <Compile Include="Dynamics\SuccessfulInvocationResult.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Internationalization\TemporaryCulture.cs" />
     <Compile Include="Parsing\DynamicXmlElement.cs" />
     <Compile Include="Parsing\DynamicXmlParser.cs" />
     <Compile Include="Parsing\IDynamicXmlParser.cs" />

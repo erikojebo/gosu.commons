@@ -1,6 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using Gosu.Commons.Internationalization;
 using Gosu.Commons.Parsing;
 using NUnit.Framework;
 
@@ -73,7 +72,7 @@ namespace Gosu.Specs.Commons.Parsing
     <Category Name='category 1' />
 </Root>
 ");
-    
+
             Assert.AreEqual(2, root.Categories.Count);
             Assert.AreEqual("category 0", root.Categories[0].Name);
             Assert.AreEqual("category 1", root.Categories[1].Name);
@@ -143,7 +142,7 @@ namespace Gosu.Specs.Commons.Parsing
         }
 
         [Test]
-        public void String_child_elements_can_be_accessed_through_collection_property()
+        public void String_representation_of_an_element_is_its_value()
         {
             var root = _parser.Parse(@"
 <Root>
@@ -158,12 +157,48 @@ namespace Gosu.Specs.Commons.Parsing
         }
 
         [Test]
-        public void String_representation_of_int_can_be_assigned_to_int_property()
+        public void String_representation_of_int_can_be_assigned_to_int_variable()
         {
-            Assert.Fail("Not implemented");
+            var root = _parser.Parse("<Root>123</Root>");
+
+            int intVariable = root;
+
+            Assert.AreEqual(123, intVariable);
         }
 
-    
+        [Test]
+        public void String_representation_of_double_can_be_assigned_to_int_variable()
+        {
+            using (new TemporaryCulture("en-US"))
+            {
+                var root = _parser.Parse("<Root>123.456</Root>");
+
+                double doubleVariable = root;
+
+                Assert.AreEqual(123.456, doubleVariable);
+            }
+        }
+
+        [Test]
+        public void String_representation_of_date_time_can_be_assigned_to_date_time_variable()
+        {
+            var root = _parser.Parse("<Root>2011-12-13T14:15:16</Root>");
+
+            DateTime dateTimeVariable = root;
+
+            Assert.AreEqual(new DateTime(2011, 12, 13, 14, 15, 16), dateTimeVariable);
+        }
+
+        [Test]
+        public void Element_can_be_assigned_to_string_variable()
+        {
+            var root = _parser.Parse("<Root>Value</Root>");
+
+            string stringVariable = root;
+
+            Assert.AreEqual("Value", stringVariable);
+        }
+
         // Implicit casting to int, double, datetime, timespan, decimal, bool, user defined type
 
         // Specifying custom conversions for different types

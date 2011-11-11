@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Gosu.Commons.Dynamics;
@@ -80,6 +81,21 @@ namespace Gosu.Commons.Parsing
         public static implicit operator string (DynamicXmlElement x)
         {
             return x._element.Value;
+        }
+
+        public static implicit operator int (DynamicXmlElement x)
+        {
+            return int.Parse(x._element.Value);
+        }
+
+        public static implicit operator double (DynamicXmlElement x)
+        {
+            return double.Parse(x._element.Value);
+        }
+        
+        public static implicit operator DateTime (DynamicXmlElement x)
+        {
+            return DateTime.Parse(x._element.Value);
         }
     }
 }
