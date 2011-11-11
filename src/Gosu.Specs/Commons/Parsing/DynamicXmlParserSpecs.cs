@@ -167,7 +167,7 @@ namespace Gosu.Specs.Commons.Parsing
         }
 
         [Test]
-        public void String_representation_of_double_can_be_assigned_to_int_variable()
+        public void String_representation_of_double_can_be_assigned_to_double_variable()
         {
             using (new TemporaryCulture("en-US"))
             {
@@ -175,7 +175,32 @@ namespace Gosu.Specs.Commons.Parsing
 
                 double doubleVariable = root;
 
-                Assert.AreEqual(123.456, doubleVariable);
+                Assert.AreEqual(123.456, doubleVariable, 0.000001);
+            }
+        }
+        [Test]
+        public void String_representation_of_float_can_be_assigned_to_float_variable()
+        {
+            using (new TemporaryCulture("en-US"))
+            {
+                var root = _parser.Parse("<Root>123.456</Root>");
+
+                float floatVariable = root;
+
+                Assert.AreEqual(123.456, floatVariable, 0.00001);
+            }
+        }
+
+        [Test]
+        public void String_representation_of_decimal_can_be_assigned_to_decimal_variable()
+        {
+            using (new TemporaryCulture("en-US"))
+            {
+                var root = _parser.Parse("<Root>123.456</Root>");
+
+                decimal decimalVariable = root;
+
+                Assert.AreEqual(123.456, decimalVariable);
             }
         }
 

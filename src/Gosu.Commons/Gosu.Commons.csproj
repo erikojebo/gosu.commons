@@ -46,6 +46,7 @@
     <Compile Include="Console\ArgumentList.cs" />
     <Compile Include="DataStructures\Maybe.cs" />
     <Compile Include="DataStructures\MaybeExtensions.cs" />
+    <Compile Include="Dynamics\ConvertionMode.cs" />
     <Compile Include="Dynamics\FailedInvocationResult.cs" />
     <Compile Include="Dynamics\HookableDynamicObject.cs" />
     <Compile Include="Dynamics\InvocationResult.cs" />

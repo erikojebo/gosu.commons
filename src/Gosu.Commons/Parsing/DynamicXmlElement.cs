@@ -78,29 +78,21 @@ namespace Gosu.Commons.Parsing
             return elements.Select(x => new DynamicXmlElement(x)).ToList();
         }
 
-        public static implicit operator string (DynamicXmlElement x)
+        protected override InvocationResult ConvertionMissing(Type type, ConvertionMode conversionMode)
         {
-            return x._element.Value;
-        }
+            var converters = new Dictionary<Type, Func<string, object>>
+                {
+                    { typeof(int), s => int.Parse(s) },
+                    { typeof(double), s => double.Parse(s) },
+                    { typeof(decimal), s => decimal.Parse(s) },
+                    { typeof(float), s => float.Parse(s) },
+                    { typeof(DateTime), s => DateTime.Parse(s) },
+                    { typeof(TimeSpan), s => TimeSpan.Parse(s) },
+                    { typeof(String), s => s }
+                };
 
-        public static implicit operator int (DynamicXmlElement x)
-        {
-            return int.Parse(x._element.Value);
-        }
-
-        public static implicit operator double (DynamicXmlElement x)
-        {
-            return double.Parse(x._element.Value);
-        }
-        
-        public static implicit operator DateTime (DynamicXmlElement x)
-        {
-            return DateTime.Parse(x._element.Value);
-        }
-
-        public static implicit operator TimeSpan (DynamicXmlElement x)
-        {
-            return TimeSpan.Parse(x._element.Value);
+            // Test that forces a check for if converter exists, and fails otherwise
+            return new SuccessfulInvocationResult(converters[type](_element.Value));
         }
     }
 }
