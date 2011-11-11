@@ -10,10 +10,23 @@ namespace Gosu.Commons.Parsing
     public class DynamicXmlElement : HookableDynamicObject
     {
         private readonly XElement _element;
+        private readonly Dictionary<Type, Func<string, object>> _converters;
 
         public DynamicXmlElement(XElement element)
         {
             _element = element;
+
+            _converters = new Dictionary<Type, Func<string, object>>
+                {
+                    { typeof(int), s => int.Parse(s) },
+                    { typeof(double), s => double.Parse(s) },
+                    { typeof(decimal), s => decimal.Parse(s) },
+                    { typeof(float), s => float.Parse(s) },
+                    { typeof(DateTime), s => DateTime.Parse(s) },
+                    { typeof(TimeSpan), s => TimeSpan.Parse(s) },
+                    { typeof(bool), s => bool.Parse(s) },
+                    { typeof(String), s => s }
+                };
         }
 
         public List<DynamicXmlElement> Elements(string name)
@@ -30,11 +43,12 @@ namespace Gosu.Commons.Parsing
 
             if (attribute != null)
             {
-                return new SuccessfulInvocationResult(attribute.Value);
+                var convertibleValue = new ConvertibleStringValue(attribute.Value);
+                return new SuccessfulInvocationResult(convertibleValue);
             }
             if (childElement != null)
             {
-                return new SuccessfulInvocationResult(childElement.Value);
+                return new SuccessfulInvocationResult(new DynamicXmlElement(childElement));
             }
             if (childElements.Any())
             {
@@ -57,13 +71,13 @@ namespace Gosu.Commons.Parsing
                 var substring = name.TrimEnd("Elements");
                 children = _element.Elements(substring);
             }
-            
+
             if (children.IsEmpty() && name.EndsWith("ies"))
             {
                 var substring = name.TrimEnd("ies") + "y";
                 children = _element.Elements(substring);
             }
-            
+
             if (children.IsEmpty() && name.EndsWith("es"))
             {
                 var substring = name.TrimEnd("es");
@@ -80,19 +94,17 @@ namespace Gosu.Commons.Parsing
 
         protected override InvocationResult ConvertionMissing(Type type, ConvertionMode conversionMode)
         {
-            var converters = new Dictionary<Type, Func<string, object>>
-                {
-                    { typeof(int), s => int.Parse(s) },
-                    { typeof(double), s => double.Parse(s) },
-                    { typeof(decimal), s => decimal.Parse(s) },
-                    { typeof(float), s => float.Parse(s) },
-                    { typeof(DateTime), s => DateTime.Parse(s) },
-                    { typeof(TimeSpan), s => TimeSpan.Parse(s) },
-                    { typeof(String), s => s }
-                };
+            if (_converters.ContainsKey(type))
+            {
+                return new SuccessfulInvocationResult(_converters[type](_element.Value));
+            }
 
-            // Test that forces a check for if converter exists, and fails otherwise
-            return new SuccessfulInvocationResult(converters[type](_element.Value));
+            return new FailedInvocationResult();
+        }
+
+        public void SetConverter(Type type, Func<string, object> converter)
+        {
+            _converters[type] = converter;
         }
     }
 }

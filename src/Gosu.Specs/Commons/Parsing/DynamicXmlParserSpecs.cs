@@ -36,14 +36,14 @@ namespace Gosu.Specs.Commons.Parsing
         public void Attribute_of_element_can_be_read_by_accessing_property_with_same_name()
         {
             var document = _parser.Parse("<Person Name='Expected name' />");
-            Assert.AreEqual("Expected name", document.Name);
+            Assert.AreEqual("Expected name", (string)document.Name);
         }
 
         [Test]
         public void Child_element_containing_string_can_be_read_by_accessing_property_with_same_name()
         {
             var document = _parser.Parse("<Person><Name>Expected name</Name></Person>");
-            Assert.AreEqual("Expected name", document.Name);
+            Assert.AreEqual("Expected name", (string)document.Name);
         }
 
         [Test]
@@ -58,9 +58,9 @@ namespace Gosu.Specs.Commons.Parsing
 ");
 
             Assert.AreEqual(3, people.Persons.Count);
-            Assert.AreEqual("person 0", people.Persons[0].Name);
-            Assert.AreEqual("person 1", people.Persons[1].Name);
-            Assert.AreEqual("person 2", people.Persons[2].Name);
+            Assert.AreEqual("person 0", (string)people.Persons[0].Name);
+            Assert.AreEqual("person 1", (string)people.Persons[1].Name);
+            Assert.AreEqual("person 2", (string)people.Persons[2].Name);
         }
 
         [Test]
@@ -74,8 +74,8 @@ namespace Gosu.Specs.Commons.Parsing
 ");
 
             Assert.AreEqual(2, root.Categories.Count);
-            Assert.AreEqual("category 0", root.Categories[0].Name);
-            Assert.AreEqual("category 1", root.Categories[1].Name);
+            Assert.AreEqual("category 0", (string)root.Categories[0].Name);
+            Assert.AreEqual("category 1", (string)root.Categories[1].Name);
         }
 
         [Test]
@@ -89,8 +89,8 @@ namespace Gosu.Specs.Commons.Parsing
 ");
 
             Assert.AreEqual(2, root.Classes.Count);
-            Assert.AreEqual("class 0", root.Classes[0].Name);
-            Assert.AreEqual("class 1", root.Classes[1].Name);
+            Assert.AreEqual("class 0", (string)root.Classes[0].Name);
+            Assert.AreEqual("class 1", (string)root.Classes[1].Name);
         }
 
         [Test]
@@ -104,8 +104,8 @@ namespace Gosu.Specs.Commons.Parsing
 ");
 
             Assert.AreEqual(2, root.Tubes.Count);
-            Assert.AreEqual("tube 0", root.Tubes[0].Name);
-            Assert.AreEqual("tube 1", root.Tubes[1].Name);
+            Assert.AreEqual("tube 0", (string)root.Tubes[0].Name);
+            Assert.AreEqual("tube 1", (string)root.Tubes[1].Name);
         }
 
         [Test]
@@ -119,8 +119,8 @@ namespace Gosu.Specs.Commons.Parsing
 ");
 
             Assert.AreEqual(2, root.OctupusElements.Count);
-            Assert.AreEqual("octupus 0", root.OctupusElements[0].Name);
-            Assert.AreEqual("octupus 1", root.OctupusElements[1].Name);
+            Assert.AreEqual("octupus 0", (string)root.OctupusElements[0].Name);
+            Assert.AreEqual("octupus 1", (string)root.OctupusElements[1].Name);
         }
 
         [Test]
@@ -178,6 +178,7 @@ namespace Gosu.Specs.Commons.Parsing
                 Assert.AreEqual(123.456, doubleVariable, 0.000001);
             }
         }
+
         [Test]
         public void String_representation_of_float_can_be_assigned_to_float_variable()
         {
@@ -213,7 +214,7 @@ namespace Gosu.Specs.Commons.Parsing
 
             Assert.AreEqual(new DateTime(2011, 12, 13, 14, 15, 16), dateTimeVariable);
         }
-        
+
         [Test]
         public void String_representation_of_time_span_can_be_assigned_to_time_span_variable()
         {
@@ -222,6 +223,16 @@ namespace Gosu.Specs.Commons.Parsing
             TimeSpan timeSpanVariable = root;
 
             Assert.AreEqual(new TimeSpan(1, 2, 3, 4), timeSpanVariable);
+        }
+
+        [Test]
+        public void String_representation_of_bool_can_be_assigned_to_bool_variable()
+        {
+            var root = _parser.Parse("<Root>true</Root>");
+
+            bool boolVariable = root;
+
+            Assert.IsTrue(boolVariable);
         }
 
         [Test]
@@ -234,8 +245,94 @@ namespace Gosu.Specs.Commons.Parsing
             Assert.AreEqual("Value", stringVariable);
         }
 
-        // Implicit casting to int, double, datetime, timespan, decimal, bool, user defined type
+        [ExpectedException]
+        [Test]
+        public void Throws_exception_when_trying_to_convert_element_to_type_without_custom_converter_set()
+        {
+            var root = _parser.Parse("<Root>Value</Root>");
 
-        // Specifying custom conversions for different types
+            DynamicXmlParserSpecs x = root;
+        }
+
+        [Test]
+        public void Custom_converter_can_be_registered_for_default_type()
+        {
+            _parser.SetConverter(x => 123);
+
+            var root = _parser.Parse("<Root>1</Root>");
+
+            int intVariable = root;
+
+            Assert.AreEqual(123, intVariable);
+        }
+
+        [Test]
+        public void Custom_converter_can_be_registered_for_custom_type()
+        {
+            // Register converter for the DynamicXmlParserSpecs type
+            _parser.SetConverter(x => this);
+
+            var root = _parser.Parse("<Root>1</Root>");
+
+            DynamicXmlParserSpecs variableWithCustomType = root;
+
+            Assert.AreEqual(this, variableWithCustomType);
+        }
+
+        [Test]
+        public void Can_assign_int_attribute_value_to_int_variable()
+        {
+            var root = _parser.Parse("<Root Value='1' />");
+            int intVariable = root.Value;
+
+            Assert.AreEqual(1, intVariable);
+        }
+
+        [Test]
+        public void Values_of_child_element_can_be_read_by_accessing_properties_on_the_child()
+        {
+            var root = _parser.Parse(@"
+<Root>
+    <Person>
+        <Address ZipCode='12345' />
+    </Person>
+</Root>");
+
+            Assert.AreEqual(12345, (int)root.Person.Address.ZipCode);
+        }
+
+        [Test]
+        public void Hierarchy_can_be_read_as_an_object_model()
+        {
+            var people = _parser.Parse(@"
+<People>
+    <Person Name='person 0'>
+        <Address Street='some street'>
+            <ZipCode>12345</ZipCode>
+        </Address>
+    </Person>
+    <Person Name='person 1' />
+    <Person Name='person 2' />
+    <SuperPerson IsSuper='true'>
+        <IsNormal>False</IsNormal>
+    </SuperPerson>
+</People>
+");
+
+            Assert.AreEqual(3, people.Persons.Count);
+
+            Assert.AreEqual("person 0", (string)people.Persons[0].Name);
+
+            var firstPersonAddress = people.Persons[0].Address;
+
+            Assert.AreEqual("some street", (string)firstPersonAddress.Street);
+            Assert.AreEqual(12345, (int)firstPersonAddress.ZipCode);
+
+            Assert.AreEqual("person 1", (string)people.Persons[1].Name);
+            Assert.AreEqual("person 2", (string)people.Persons[2].Name);
+
+            Assert.IsTrue((bool)people.SuperPerson.IsSuper);
+            Assert.IsFalse((bool)people.SuperPerson.IsNormal);
+        }
     }
 }
