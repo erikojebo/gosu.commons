@@ -11,10 +11,20 @@ namespace Gosu.Commons.Parsing
     {
         private readonly XElement _element;
         private readonly Dictionary<Type, Func<string, object>> _converters;
+        private readonly ConverterRegistry _converterRegistry = new ConverterRegistry();
 
         public DynamicXmlElement(XElement element)
         {
             _element = element;
+
+            _converterRegistry.Register<int>(s => int.Parse(s));
+            _converterRegistry.Register<double>(s => double.Parse(s));
+            _converterRegistry.Register<decimal>(s => decimal.Parse(s));
+            _converterRegistry.Register<float>(s => float.Parse(s));
+            _converterRegistry.Register<DateTime>(s => DateTime.Parse(s));
+            _converterRegistry.Register<TimeSpan>(s => TimeSpan.Parse(s));
+            _converterRegistry.Register<bool>(s => bool.Parse(s));
+            _converterRegistry.Register<String>(s => s);
 
             _converters = new Dictionary<Type, Func<string, object>>
                 {
@@ -100,10 +110,8 @@ namespace Gosu.Commons.Parsing
 
         protected override InvocationResult ConvertionMissing(Type type, ConvertionMode conversionMode)
         {
-            if (_converters.ContainsKey(type))
-            {
-                return new SuccessfulInvocationResult(_converters[type](_element.Value));
-            }
+            if (_converterRegistry.HasConverterFor(type))
+                return new SuccessfulInvocationResult(_converterRegistry.Convert(type, _element.Value));
 
             return new FailedInvocationResult();
         }
@@ -111,6 +119,7 @@ namespace Gosu.Commons.Parsing
         public void SetConverter(Type type, Func<string, object> converter)
         {
             _converters[type] = converter;
+            _converterRegistry.Register(type, converter);
         }
     }
 }
