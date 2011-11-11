@@ -97,5 +97,10 @@ namespace Gosu.Commons.Parsing
         {
             return DateTime.Parse(x._element.Value);
         }
+
+        public static implicit operator TimeSpan (DynamicXmlElement x)
+        {
+            return TimeSpan.Parse(x._element.Value);
+        }
     }
 }

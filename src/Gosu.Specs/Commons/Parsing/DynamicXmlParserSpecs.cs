@@ -188,6 +188,16 @@ namespace Gosu.Specs.Commons.Parsing
 
             Assert.AreEqual(new DateTime(2011, 12, 13, 14, 15, 16), dateTimeVariable);
         }
+        
+        [Test]
+        public void String_representation_of_time_span_can_be_assigned_to_time_span_variable()
+        {
+            var root = _parser.Parse("<Root>1:02:03:04</Root>");
+
+            TimeSpan timeSpanVariable = root;
+
+            Assert.AreEqual(new TimeSpan(1, 2, 3, 4), timeSpanVariable);
+        }
 
         [Test]
         public void Element_can_be_assigned_to_string_variable()
