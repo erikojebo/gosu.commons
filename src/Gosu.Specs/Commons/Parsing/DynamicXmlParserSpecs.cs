@@ -302,6 +302,39 @@ namespace Gosu.Specs.Commons.Parsing
         }
 
         [Test]
+        public void Attributes_can_be_converted_to_basic_types()
+        {
+            using (new TemporaryCulture("en-US"))
+            {
+                var root = _parser.Parse(@"
+<Person 
+    Int='1'
+    Float='1.1'
+    Bool='true'
+    DateTime='2011-01-01'
+    TimeSpan='1:02:03' />");
+
+                Assert.AreEqual(1, (int)root.Int);
+                Assert.AreEqual(1.1, (float)root.Float, 0.0001);
+                Assert.AreEqual(1.1, (decimal)root.Float);
+                Assert.AreEqual(1.1, (double)root.Float, 0.0001);
+                Assert.IsTrue((bool)root.Bool);
+                Assert.AreEqual(new DateTime(2011, 1, 1), (DateTime)root.DateTime);
+                Assert.AreEqual(new TimeSpan(1, 2, 3), (TimeSpan)root.TimeSpan);
+            }
+        }
+
+        [Test]
+        public void Attribute_can_be_converted_to_custom_type()
+        {
+            _parser.SetConverter(x => this);
+
+            var root = _parser.Parse("<Root Value='1' />");
+
+            Assert.AreEqual(this, (DynamicXmlParserSpecs)root.Value);
+        }
+
+        [Test]
         public void Hierarchy_can_be_read_as_an_object_model()
         {
             var people = _parser.Parse(@"

@@ -44,6 +44,12 @@ namespace Gosu.Commons.Parsing
             if (attribute != null)
             {
                 var convertibleValue = new ConvertibleStringValue(attribute.Value);
+
+                foreach (var type in _converters.Keys)
+                {
+                    convertibleValue.SetConverter(type, _converters[type]);
+                }
+
                 return new SuccessfulInvocationResult(convertibleValue);
             }
             if (childElement != null)
