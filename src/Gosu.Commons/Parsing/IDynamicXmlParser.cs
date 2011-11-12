@@ -6,5 +6,6 @@ namespace Gosu.Commons.Parsing
     {
         dynamic Parse(string xml);
         void SetConverter<T>(Func<string , T> converter);
+        void SetNamespaceAlias(string uri, string alias);
     }
 }

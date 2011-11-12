@@ -10,20 +10,12 @@ namespace Gosu.Commons.Parsing
     public class DynamicXmlElement : HookableDynamicObject
     {
         private readonly XElement _element;
-        private readonly ConverterRegistry _converterRegistry = new ConverterRegistry();
+        private readonly ConverterRegistry _converterRegistry;
 
-        public DynamicXmlElement(XElement element)
+        public DynamicXmlElement(XElement element, ConverterRegistry converterRegistry)
         {
             _element = element;
-
-            _converterRegistry.Register<int>(s => int.Parse(s));
-            _converterRegistry.Register<double>(s => double.Parse(s));
-            _converterRegistry.Register<decimal>(s => decimal.Parse(s));
-            _converterRegistry.Register<float>(s => float.Parse(s));
-            _converterRegistry.Register<DateTime>(s => DateTime.Parse(s));
-            _converterRegistry.Register<TimeSpan>(s => TimeSpan.Parse(s));
-            _converterRegistry.Register<bool>(s => bool.Parse(s));
-            _converterRegistry.Register<String>(s => s);
+            _converterRegistry = converterRegistry;
         }
 
         public List<DynamicXmlElement> Elements(string name)
@@ -45,7 +37,7 @@ namespace Gosu.Commons.Parsing
             }
             if (childElement != null)
             {
-                return new SuccessfulInvocationResult(new DynamicXmlElement(childElement));
+                return new SuccessfulInvocationResult(new DynamicXmlElement(childElement, _converterRegistry));
             }
             if (childElements.Any())
             {
@@ -99,11 +91,6 @@ namespace Gosu.Commons.Parsing
             }
 
             return new FailedInvocationResult();
-        }
-
-        public void SetConverter(Type type, Func<string, object> converter)
-        {
-            _converterRegistry.Register(type, converter);
         }
     }
 }

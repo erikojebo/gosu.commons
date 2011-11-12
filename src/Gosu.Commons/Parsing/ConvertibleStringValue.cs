@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Gosu.Commons.Dynamics;
 
 namespace Gosu.Commons.Parsing

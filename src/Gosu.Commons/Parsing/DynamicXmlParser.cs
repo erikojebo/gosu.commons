@@ -6,22 +6,12 @@ namespace Gosu.Commons.Parsing
 {
     public class DynamicXmlParser : IDynamicXmlParser
     {
-        private Dictionary<Type, Func<string, object>> _converters;
-
-        public DynamicXmlParser()
-        {
-            _converters = new Dictionary<Type, Func<string, object>>();
-        }
+        private ConverterRegistry _converterRegistry = new ConverterRegistry();
 
         public dynamic Parse(string xml)
         {
             var document = XDocument.Parse(xml);
-            var dynamicXmlElement = new DynamicXmlElement(document.Root);
-
-            foreach (var type in _converters.Keys)
-            {
-                dynamicXmlElement.SetConverter(type, _converters[type]);
-            }
+            var dynamicXmlElement = new DynamicXmlElement(document.Root, _converterRegistry);
 
             return dynamicXmlElement;
         }
@@ -29,7 +19,11 @@ namespace Gosu.Commons.Parsing
         public void SetConverter<T>(Func<string, T> converter)
         {
             Func<string, object> untypedConverter = x => converter(x);
-            _converters[typeof(T)] = untypedConverter;
+            _converterRegistry.Register(typeof(T), untypedConverter);
+        }
+
+        public void SetNamespaceAlias(string uri, string alias)
+        {
         }
     }
 }

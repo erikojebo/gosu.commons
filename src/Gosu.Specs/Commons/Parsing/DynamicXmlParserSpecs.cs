@@ -1,4 +1,5 @@
 using System;
+using System.Xml.Linq;
 using Gosu.Commons.Internationalization;
 using Gosu.Commons.Parsing;
 using NUnit.Framework;
@@ -366,6 +367,39 @@ namespace Gosu.Specs.Commons.Parsing
 
             Assert.IsTrue((bool)people.SuperPerson.IsSuper);
             Assert.IsFalse((bool)people.SuperPerson.IsNormal);
+        }
+
+        [Test]
+        public void Elements_in_different_namespaces_can_be_accessed_by_prefixing_element_name_with_namespace()
+        {
+            var xml =
+@"<?xml version='1.0' encoding='UTF-8' ?>
+<!--  Here comes some XML -->
+<Root xmlns='http://www.somesite.org/xml/DefaultNamespace' xmlns:IR='http://www.somesite.org/xml' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' RootElementAttribute='1.0'>
+	<IR:Header>
+		<IR:FileDate>2006-04-18T10:38:42</IR:FileDate>
+	</IR:Header>
+	<IR:FileId>TestId</IR:FileId>
+	<MyEntity Version='1.0'>
+		<IR:Header>
+		    <IR:FileDate>2006-04-18T10:38:42</IR:FileDate>
+    	</IR:Header>
+		<IR:EntityId>Entity id</IR:EntityId>
+		<SomeData>
+			<IR:DataFormat>Test format</IR:DataFormat>
+			<Number>5.500</Number>
+		</SomeData>
+	</MyEntity>
+</Root>
+";
+
+            _parser.SetNamespaceAlias("http://www.somesite.org/xml", "IR");
+
+            var root = _parser.Parse(xml);
+
+            Assert.AreEqual(new DateTime(2006, 4, 18, 10, 38, 42), root.IRHeader.IRFileDate);
+            Assert.AreEqual(5.5, (double)root.MyEntity.SomeData.Number, 0.00001);
+
         }
     }
 }
