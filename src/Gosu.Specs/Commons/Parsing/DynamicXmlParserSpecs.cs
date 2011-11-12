@@ -397,7 +397,7 @@ namespace Gosu.Specs.Commons.Parsing
 
             var root = _parser.Parse(xml);
 
-            Assert.AreEqual(new DateTime(2006, 4, 18, 10, 38, 42), root.IRHeader.IRFileDate);
+            Assert.AreEqual(new DateTime(2006, 4, 18, 10, 38, 42), (DateTime)root.IRHeader.IRFileDate);
             Assert.AreEqual(5.5, (double)root.MyEntity.SomeData.Number, 0.00001);
 
         }

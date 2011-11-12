@@ -7,11 +7,12 @@ namespace Gosu.Commons.Parsing
     public class DynamicXmlParser : IDynamicXmlParser
     {
         private ConverterRegistry _converterRegistry = new ConverterRegistry();
+        private NamespaceRegistry _namespaceRegistry = new NamespaceRegistry();
 
         public dynamic Parse(string xml)
         {
             var document = XDocument.Parse(xml);
-            var dynamicXmlElement = new DynamicXmlElement(document.Root, _converterRegistry);
+            var dynamicXmlElement = new DynamicXmlElement(document.Root, _converterRegistry, _namespaceRegistry);
 
             return dynamicXmlElement;
         }
@@ -24,6 +25,7 @@ namespace Gosu.Commons.Parsing
 
         public void SetNamespaceAlias(string uri, string alias)
         {
+            _namespaceRegistry.Register(uri, alias);
         }
     }
 }

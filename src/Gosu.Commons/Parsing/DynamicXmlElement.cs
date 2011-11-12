@@ -11,11 +11,13 @@ namespace Gosu.Commons.Parsing
     {
         private readonly XElement _element;
         private readonly ConverterRegistry _converterRegistry;
+        private readonly NamespaceRegistry _namespaceRegistry;
 
-        public DynamicXmlElement(XElement element, ConverterRegistry converterRegistry)
+        public DynamicXmlElement(XElement element, ConverterRegistry converterRegistry, NamespaceRegistry namespaceRegistry)
         {
             _element = element;
             _converterRegistry = converterRegistry;
+            _namespaceRegistry = namespaceRegistry;
         }
 
         public List<DynamicXmlElement> Elements(string name)
@@ -29,6 +31,7 @@ namespace Gosu.Commons.Parsing
             var attribute = _element.Attribute(name);
             var childElement = _element.Element(name);
             var childElements = GetChildElements(name);
+            var namespaceChildElement = GetNamespaceChildElement(name);
 
             if (attribute != null)
             {
@@ -37,7 +40,11 @@ namespace Gosu.Commons.Parsing
             }
             if (childElement != null)
             {
-                return new SuccessfulInvocationResult(new DynamicXmlElement(childElement, _converterRegistry));
+                return new SuccessfulInvocationResult(new DynamicXmlElement(childElement, _converterRegistry, _namespaceRegistry));
+            }
+            if (namespaceChildElement != null)
+            {
+                return new SuccessfulInvocationResult(new DynamicXmlElement(namespaceChildElement, _converterRegistry, _namespaceRegistry));                
             }
             if (childElements.Any())
             {
@@ -45,6 +52,16 @@ namespace Gosu.Commons.Parsing
             }
 
             throw new MissingValueException(name);
+        }
+
+        private XElement GetNamespaceChildElement(string name)
+        {
+            if (_namespaceRegistry.HasNamespaceFor(name))
+            {
+                return _element.Element(_namespaceRegistry.GetPath(name));
+            }
+
+            return null;
         }
 
         private List<DynamicXmlElement> GetChildElements(string name)
@@ -78,7 +95,7 @@ namespace Gosu.Commons.Parsing
 
         private List<DynamicXmlElement> GetDynamicXmlElements(IEnumerable<XElement> elements)
         {
-            return elements.Select(x => new DynamicXmlElement(x)).ToList();
+            return elements.Select(x => new DynamicXmlElement(x, _converterRegistry, _namespaceRegistry)).ToList();
         }
 
         protected override InvocationResult ConvertionMissing(Type type, ConvertionMode conversionMode)
