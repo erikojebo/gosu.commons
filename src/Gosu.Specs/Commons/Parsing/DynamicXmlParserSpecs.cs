@@ -1,5 +1,4 @@
 using System;
-using System.Xml.Linq;
 using Gosu.Commons.Internationalization;
 using Gosu.Commons.Parsing;
 using NUnit.Framework;
@@ -373,13 +372,18 @@ namespace Gosu.Specs.Commons.Parsing
         public void Elements_in_different_namespaces_can_be_accessed_by_prefixing_element_name_with_namespace()
         {
             var xml =
-@"<?xml version='1.0' encoding='UTF-8' ?>
+                @"<?xml version='1.0' encoding='UTF-8' ?>
 <!--  Here comes some XML -->
-<Root xmlns='http://www.somesite.org/xml/DefaultNamespace' xmlns:IR='http://www.somesite.org/xml' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' RootElementAttribute='1.0'>
+<Root xmlns='http://www.somesite.org/xml/DefaultNamespace' 
+      xmlns:IR='http://www.somesite.org/xml' 
+      xmlns:OtherNamespace='http://www.somesite.org/xml/OtherNamespace' 
+      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' 
+      RootElementAttribute='1.0'>
 	<IR:Header>
 		<IR:FileDate>2006-04-18T10:38:42</IR:FileDate>
 	</IR:Header>
 	<IR:FileId>TestId</IR:FileId>
+	<OtherNamespace:Value>Value 1</OtherNamespace:Value>
 	<MyEntity Version='1.0'>
 		<IR:Header>
 		    <IR:FileDate>2006-04-18T10:38:42</IR:FileDate>
@@ -392,14 +396,50 @@ namespace Gosu.Specs.Commons.Parsing
 	</MyEntity>
 </Root>
 ";
+            using (new TemporaryCulture("en-US"))
+            {
+                _parser.SetNamespaceAlias("http://www.somesite.org/xml", "IR");
+                _parser.SetNamespaceAlias("http://www.somesite.org/xml/OtherNamespace", "Other");
+
+                var root = _parser.Parse(xml);
+
+                Assert.AreEqual(new DateTime(2006, 4, 18, 10, 38, 42), (DateTime)root.IRHeader.IRFileDate);
+                Assert.AreEqual(5.5, (double)root.MyEntity.SomeData.Number, 0.00001);
+                Assert.AreEqual("Value 1", (string)root.OtherValue);
+            }
+        }
+
+        [Test]
+        public void Child_element_collections_in_other_namespaces_can_be_accessed_as_collection_properties()
+        {
+            var xml = @"<?xml version='1.0' encoding='UTF-8' ?>
+<!--  Here comes some XML -->
+<Root xmlns='http://www.somesite.org/xml/DefaultNamespace' 
+      xmlns:IR='http://www.somesite.org/xml' 
+      xmlns:OtherNamespace='http://www.somesite.org/xml/OtherNamespace' 
+      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' 
+      RootElementAttribute='1.0'>
+	<MyEntity Version='1.0'>
+        <IR:Class>Class 1</IR:Class>
+		<IR:Class>Class 2</IR:Class>
+		<IR:Class>Class 3</IR:Class>
+        <Category Value='1' />
+		<Category Value='2' />		
+        <OtherNamespace:Car>
+			<Number>5</Number>
+		</OtherNamespace:Car>
+	</MyEntity>
+</Root>
+";
 
             _parser.SetNamespaceAlias("http://www.somesite.org/xml", "IR");
+            _parser.SetNamespaceAlias("http://www.somesite.org/xml/OtherNamespace", "Other");
 
             var root = _parser.Parse(xml);
 
-            Assert.AreEqual(new DateTime(2006, 4, 18, 10, 38, 42), (DateTime)root.IRHeader.IRFileDate);
-            Assert.AreEqual(5.5, (double)root.MyEntity.SomeData.Number, 0.00001);
-
+            Assert.AreEqual(3, root.MyEntity.IRClasses.Count);
+            Assert.AreEqual(2, root.MyEntity.Categories.Count);
+            Assert.AreEqual(1, root.MyEntity.OtherCars.Count);
         }
     }
 }

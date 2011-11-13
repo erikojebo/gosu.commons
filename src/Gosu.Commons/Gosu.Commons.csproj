@@ -60,6 +60,7 @@
     <Compile Include="Parsing\DynamicXmlParser.cs" />
     <Compile Include="Parsing\IDynamicXmlParser.cs" />
     <Compile Include="Parsing\MissingValueException.cs" />
+    <Compile Include="Parsing\Namespace.cs" />
     <Compile Include="Parsing\NamespaceRegistry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\ReflectionExtensions.cs" />

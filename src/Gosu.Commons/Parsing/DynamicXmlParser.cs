@@ -12,6 +12,9 @@ namespace Gosu.Commons.Parsing
         public dynamic Parse(string xml)
         {
             var document = XDocument.Parse(xml);
+
+            _namespaceRegistry.SetDefaultNamespace(document.Root.GetDefaultNamespace());
+
             var dynamicXmlElement = new DynamicXmlElement(document.Root, _converterRegistry, _namespaceRegistry);
 
             return dynamicXmlElement;
