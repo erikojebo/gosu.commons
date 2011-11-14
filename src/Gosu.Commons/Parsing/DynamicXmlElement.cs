@@ -13,7 +13,8 @@ namespace Gosu.Commons.Parsing
         private readonly ConverterRegistry _converterRegistry;
         private readonly NamespaceRegistry _namespaceRegistry;
 
-        public DynamicXmlElement(XElement element, ConverterRegistry converterRegistry, NamespaceRegistry namespaceRegistry)
+        public DynamicXmlElement(XElement element, ConverterRegistry converterRegistry,
+            NamespaceRegistry namespaceRegistry)
         {
             _element = element;
             _converterRegistry = converterRegistry;
@@ -69,109 +70,84 @@ namespace Gosu.Commons.Parsing
             throw new MissingValueException(name);
         }
 
+        private XElement GetNamespaceChildElement(string name)
+        {
+            var xmlNamespace = _namespaceRegistry.GetNamespace(name);
+
+            if (xmlNamespace.IsNothing)
+            {
+                return null;
+            }
+
+            return _element.Element(xmlNamespace.Value.GetXName(name));
+        }
+
         private IEnumerable<DynamicXmlElement> GetDefaultChildElements(string name)
         {
             var ns = _namespaceRegistry.GetDefaultNamespace();
 
-            var childName = name.TrimEnd('s');
-
-            var children = _element.Elements(ns + childName);
-
-            if (children.IsEmpty() && name.EndsWith("Elements"))
+            if (ns.IsNothing)
             {
-                var substring = name.TrimEnd("Elements");
-                children = _element.Elements(ns + substring);
+                return null;
             }
 
-            if (children.IsEmpty() && name.EndsWith("ies"))
-            {
-                var substring = name.TrimEnd("ies") + "y";
-                children = _element.Elements(ns + substring);
-            }
+            return GetChildElements(name, x => ns.Value.ToXNamespace() + x);
+        }
 
-            if (children.IsEmpty() && name.EndsWith("es"))
-            {
-                var substring = name.TrimEnd("es");
-                children = _element.Elements(ns + substring);
-            }
-
-            return GetDynamicXmlElements(children);
+        private IEnumerable<DynamicXmlElement> GetChildElements(string name)
+        {
+            return GetChildElements(name, x => x);
         }
 
         private IEnumerable<DynamicXmlElement> GetNamespaceChildElements(string name)
         {
-            if (!_namespaceRegistry.HasNamespaceFor(name))
+            var xmlNamespace = _namespaceRegistry.GetNamespace(name);
+
+            if (xmlNamespace.IsNothing)
             {
                 return new List<DynamicXmlElement>();
             }
 
-            var ns = _namespaceRegistry.GetNamespace(name).ToXNamespace();
-            var nameWithoutNamespace = _namespaceRegistry.GetNameWithoutNamespace(name);
+            var xNamespace = xmlNamespace.Value.ToXNamespace();
+            var nameWithoutNamespace = xmlNamespace.Value.GetNameWithoutNamespacePrefix(name);
 
-            var childName = nameWithoutNamespace.TrimEnd('s');
-
-            var children = _element.Elements(ns + childName);
-
-            if (children.IsEmpty() && nameWithoutNamespace.EndsWith("Elements"))
-            {
-                var substring = nameWithoutNamespace.TrimEnd("Elements");
-                children = _element.Elements(ns + substring);
-            }
-
-            if (children.IsEmpty() && nameWithoutNamespace.EndsWith("ies"))
-            {
-                var substring = nameWithoutNamespace.TrimEnd("ies") + "y";
-                children = _element.Elements(ns + substring);
-            }
-
-            if (children.IsEmpty() && nameWithoutNamespace.EndsWith("es"))
-            {
-                var substring = nameWithoutNamespace.TrimEnd("es");
-                children = _element.Elements(ns + substring);
-            }
-
-            return GetDynamicXmlElements(children);
+            return GetChildElements(nameWithoutNamespace, x => xNamespace + x);
         }
 
         private XElement GetDefaultNamespaceChildElement(string name)
         {
-            return _element.Element(_namespaceRegistry.GetDefaultNamespacePath(name));
-        }
+            var defaultNamespace = _namespaceRegistry.GetDefaultNamespace();
 
-        private XElement GetNamespaceChildElement(string name)
-        {
-            if (_namespaceRegistry.HasNamespaceFor(name))
+            if (defaultNamespace.IsNothing)
             {
-                return _element.Element(_namespaceRegistry.GetPath(name));
+                return null;
             }
 
-            return null;
+            return _element.Element(defaultNamespace.Value.GetXName(name));
         }
 
-        private List<DynamicXmlElement> GetChildElements(string name)
+        private IEnumerable<DynamicXmlElement> GetChildElements(string name, Func<string, XName> getQualifiedName)
         {
-            IEnumerable<XElement> children = new List<XElement>();
-
             var childName = name.TrimEnd('s');
 
-            children = _element.Elements(childName);
+            var children = _element.Elements(getQualifiedName(childName));
 
             if (children.IsEmpty() && name.EndsWith("Elements"))
             {
                 var substring = name.TrimEnd("Elements");
-                children = _element.Elements(substring);
+                children = _element.Elements(getQualifiedName(substring));
             }
 
             if (children.IsEmpty() && name.EndsWith("ies"))
             {
                 var substring = name.TrimEnd("ies") + "y";
-                children = _element.Elements(substring);
+                children = _element.Elements(getQualifiedName(substring));
             }
 
             if (children.IsEmpty() && name.EndsWith("es"))
             {
                 var substring = name.TrimEnd("es");
-                children = _element.Elements(substring);
+                children = _element.Elements(getQualifiedName(substring));
             }
 
             return GetDynamicXmlElements(children);

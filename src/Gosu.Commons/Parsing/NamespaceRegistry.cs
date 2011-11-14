@@ -1,54 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
+using Gosu.Commons.DataStructures;
 
 namespace Gosu.Commons.Parsing
 {
-    public class NamespaceRegistry 
+    public class NamespaceRegistry
     {
-        private IList<Namespace> _namespaces = new List<Namespace>();
-        private XNamespace _defaultNamespace;
+        private readonly IList<XmlNamespace> _namespaces = new List<XmlNamespace>();
+        private XmlNamespace _defaultNamespace;
 
         public void Register(string uri, string alias)
         {
-            _namespaces.Add(new Namespace() { Uri = uri, Alias = alias });
-        }
-
-        public bool HasNamespaceFor(string name)
-        {
-            return GetNamespace(name) != null;
-        }
-
-        public XName GetPath(string name)
-        {
-            return GetNamespace(name).ToXNamespace() + GetNameWithoutNamespace(name);
-        }
-
-        public XName GetDefaultNamespacePath(string name)
-        {
-            return _defaultNamespace + name;
+            _namespaces.Add(new XmlNamespace { Uri = uri, Alias = alias });
         }
 
         public void SetDefaultNamespace(XNamespace defaultNamespace)
         {
-            _defaultNamespace = defaultNamespace;
+            _defaultNamespace = new XmlNamespace { Uri = defaultNamespace };
         }
 
-        public string GetNameWithoutNamespace(string name)
+        public Maybe<XmlNamespace> GetNamespace(string name)
         {
-            var ns = GetNamespace(name);
-            return name.Substring(ns.Alias.Length);
+            var xmlNamespace = _namespaces.FirstOrDefault(x => name.StartsWith(x.Alias));
+
+            if (xmlNamespace == null)
+            {
+                return Maybe<XmlNamespace>.Nothing;
+            }
+
+            return xmlNamespace.ToMaybe();
         }
 
-        public Namespace GetNamespace(string name)
+        public Maybe<XmlNamespace> GetDefaultNamespace()
         {
-            return _namespaces.FirstOrDefault(x => name.StartsWith(x.Alias));
-        }
+            if (_defaultNamespace == null)
+            {
+                return Maybe<XmlNamespace>.Nothing;
+            }
 
-        public XNamespace GetDefaultNamespace()
-        {
-            return _defaultNamespace;
+            return _defaultNamespace.ToMaybe();
         }
     }
 }
