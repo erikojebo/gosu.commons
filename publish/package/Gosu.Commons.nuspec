@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>Gosu.Commons</id>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <authors>Erik Öjebo</authors>
     <owners>Erik Öjebo</owners>
     <projectUrl>https://github.com/erikojebo/gosu.commons</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Lots of useful stuff for doing all kinds of things in .NET</description>
-    <releaseNotes>Added dynamic XML parsing API</releaseNotes>
+    <releaseNotes>Added possibility to specify aliases for argument flags</releaseNotes>
     <copyright>Copyright 2011</copyright>
     <tags>.net helpers utils gosu commons reflection dynamic</tags>
   </metadata>

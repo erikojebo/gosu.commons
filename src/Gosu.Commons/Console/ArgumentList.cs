@@ -59,6 +59,21 @@ namespace Gosu.Commons.Console
             return flag.ToMaybe();
         }
 
+        public Maybe<string> GetFlagValue(params string[] flagNameAliases)
+        {
+            var flags = flagNameAliases.Select(GetFlag);
+
+            var maybeFlag = flags.FirstOrDefault(x => x.HasValue);
+
+            if (maybeFlag != null && maybeFlag.Value.HasValues)
+            {
+                var flag = maybeFlag.Value;
+                return flag.Values[0].ToMaybe();
+            }
+
+            return Maybe<string>.Nothing;
+        }
+
         public Maybe<string> GetFlagValue(string flagName)
         {
             var flag = GetFlag(flagName);
