@@ -97,5 +97,17 @@ namespace Gosu.Commons.Console
 
             return defaultValue;
         }
+
+        public string GetFlagValueOrDefault(string[] flagNameAliases, string defaultValue)
+        {
+            var value = GetFlagValue(flagNameAliases);
+
+            if (value.HasValue)
+            {
+                return value.Value;
+            }
+
+            return defaultValue;
+        }
     }
 }

@@ -226,5 +226,28 @@ namespace Gosu.Specs.Commons.Console
 
             Assert.IsTrue(arguments.GetFlagValue("flag", "f").IsNothing);
         }
+        
+        [Test]
+        public void Multiple_flag_names_can_be_used_when_fetching_flag_value_or_default()
+        {
+            var arguments1 = new ArgumentList("-flag", "value");
+            var arguments2 = new ArgumentList("-f", "value");
+
+            var value1 = arguments1.GetFlagValueOrDefault(new[]{"flag", "f" }, "default");
+            var value2 = arguments2.GetFlagValueOrDefault(new[]{"flag", "f" }, "default");
+
+            Assert.AreEqual("value", value1);
+            Assert.AreEqual("value", value2);
+        }
+
+        [Test]
+        public void Flag_value_is_default_when_fetching_value_or_default_for_missing_flag_aliases()
+        {
+            var arguments = new ArgumentList();
+
+            var value = arguments.GetFlagValueOrDefault(new[] { "flag", "f" }, "default");
+
+            Assert.AreEqual("default", value);
+        }
     }
 }
