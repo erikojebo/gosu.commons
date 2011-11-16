@@ -158,7 +158,7 @@ namespace Gosu.Commons.Parsing
             return elements.Select(x => new DynamicXmlElement(x, _converterRegistry, _namespaceRegistry)).ToList();
         }
 
-        protected override InvocationResult ConvertionMissing(Type type, ConvertionMode conversionMode)
+        protected override InvocationResult ConversionMissing(Type type, ConversionMode conversionMode)
         {
             var value = new ConvertibleStringValue(_element.Value, _converterRegistry);
 

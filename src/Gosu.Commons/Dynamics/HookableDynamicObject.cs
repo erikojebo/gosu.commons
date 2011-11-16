@@ -25,21 +25,21 @@ namespace Gosu.Commons.Dynamics
 
         public override bool TryConvert(ConvertBinder binder, out object result)
         {
-            var conversionMode = binder.Explicit ? ConvertionMode.Explicit : ConvertionMode.Implicit;
+            var conversionMode = binder.Explicit ? ConversionMode.Explicit : ConversionMode.Implicit;
 
-            var invocationResult = ConvertionMissing(binder.Type, conversionMode);
+            var invocationResult = ConversionMissing(binder.Type, conversionMode);
 
             result = invocationResult.ReturnValue;
 
             return invocationResult.WasInvocationSuccessful;
         }
 
-        protected virtual InvocationResult ConvertionMissing(Type type, ConvertionMode conversionMode)
+        protected virtual InvocationResult ConversionMissing(Type type, ConversionMode conversionMode)
         {
             return new FailedInvocationResult();
         }
 
-        public virtual InvocationResult MethodMissing(string methodName, object[] arguments)
+        protected virtual InvocationResult MethodMissing(string methodName, object[] arguments)
         {
             return new FailedInvocationResult();
         }

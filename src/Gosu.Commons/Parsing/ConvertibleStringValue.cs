@@ -14,7 +14,7 @@ namespace Gosu.Commons.Parsing
             _converterRegistry = converterRegistry;
         }
 
-        protected override InvocationResult ConvertionMissing(Type type, ConvertionMode conversionMode)
+        protected override InvocationResult ConversionMissing(Type type, ConversionMode conversionMode)
         {
             if (CanConvertTo(type))
             {
