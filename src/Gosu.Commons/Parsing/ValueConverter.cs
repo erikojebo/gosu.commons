@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace Gosu.Commons.Parsing
 {
-    public class ConverterRegistry
+    public class ValueConverter
     {
-        Dictionary<Type, Func<string, object>> _converters =
+        private readonly Dictionary<Type, Func<string, object>> _converters =
             new Dictionary<Type, Func<string, object>>();
 
-        public ConverterRegistry()
+        public ValueConverter()
         {
             Register<int>(s => int.Parse(s));
             Register<double>(s => double.Parse(s));
@@ -18,14 +18,13 @@ namespace Gosu.Commons.Parsing
             Register<TimeSpan>(s => TimeSpan.Parse(s));
             Register<bool>(s => bool.Parse(s));
             Register<String>(s => s);
-
         }
 
         public void Register(Type type, Func<string, object> converter)
         {
             _converters[type] = converter;
         }
-        
+
         public void Register<T>(Func<string, object> converter)
         {
             _converters[typeof(T)] = converter;
@@ -33,11 +32,21 @@ namespace Gosu.Commons.Parsing
 
         public object Convert(Type type, string value)
         {
+            if (type.IsEnum)
+            {
+                return Enum.Parse(type, value);
+            }
+
             return _converters[type](value);
         }
 
-        public bool HasConverterFor(Type type)
+        public bool CanConvert(Type type)
         {
+            if (type.IsEnum)
+            {
+                return true;
+            }
+
             return _converters.ContainsKey(type);
         }
     }

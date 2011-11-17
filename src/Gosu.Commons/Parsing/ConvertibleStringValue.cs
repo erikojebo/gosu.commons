@@ -6,12 +6,12 @@ namespace Gosu.Commons.Parsing
     public class ConvertibleStringValue : HookableDynamicObject
     {
         private readonly string _value;
-        private readonly ConverterRegistry _converterRegistry;
+        private readonly ValueConverter _valueConverter;
 
-        public ConvertibleStringValue(string value, ConverterRegistry converterRegistry)
+        public ConvertibleStringValue(string value, ValueConverter valueConverter)
         {
             _value = value;
-            _converterRegistry = converterRegistry;
+            _valueConverter = valueConverter;
         }
 
         protected override InvocationResult ConversionMissing(Type type, ConversionMode conversionMode)
@@ -26,12 +26,12 @@ namespace Gosu.Commons.Parsing
 
         public object Convert(Type type)
         {
-            return _converterRegistry.Convert(type, _value);
+            return _valueConverter.Convert(type, _value);
         }
 
         public bool CanConvertTo(Type type)
         {
-            return _converterRegistry.HasConverterFor(type);
+            return _valueConverter.CanConvert(type);
         }
     }
 }

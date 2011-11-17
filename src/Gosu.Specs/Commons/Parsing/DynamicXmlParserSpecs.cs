@@ -289,6 +289,15 @@ namespace Gosu.Specs.Commons.Parsing
         }
 
         [Test]
+        public void Can_assign_name_of_enum_member_to_enum_property()
+        {
+            var root = _parser.Parse("<Root Value='Value2' />");
+            SomeEnum enumValue = root.Value;
+
+            Assert.AreEqual(SomeEnum.Value2, enumValue);
+        }
+
+        [Test]
         public void Values_of_child_element_can_be_read_by_accessing_properties_on_the_child()
         {
             var root = _parser.Parse(@"
@@ -441,5 +450,11 @@ namespace Gosu.Specs.Commons.Parsing
             Assert.AreEqual(2, root.MyEntity.Categories.Count);
             Assert.AreEqual(1, root.MyEntity.OtherCars.Count);
         }
+    }
+
+    enum SomeEnum
+    {
+        Value1,
+        Value2
     }
 }

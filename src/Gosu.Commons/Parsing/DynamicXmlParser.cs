@@ -6,7 +6,7 @@ namespace Gosu.Commons.Parsing
 {
     public class DynamicXmlParser : IDynamicXmlParser
     {
-        private ConverterRegistry _converterRegistry = new ConverterRegistry();
+        private ValueConverter _valueConverter = new ValueConverter();
         private NamespaceRegistry _namespaceRegistry = new NamespaceRegistry();
 
         public dynamic Parse(string xml)
@@ -15,7 +15,7 @@ namespace Gosu.Commons.Parsing
 
             _namespaceRegistry.SetDefaultNamespace(document.Root.GetDefaultNamespace());
 
-            var dynamicXmlElement = new DynamicXmlElement(document.Root, _converterRegistry, _namespaceRegistry);
+            var dynamicXmlElement = new DynamicXmlElement(document.Root, _valueConverter, _namespaceRegistry);
 
             return dynamicXmlElement;
         }
@@ -23,7 +23,7 @@ namespace Gosu.Commons.Parsing
         public void SetConverter<T>(Func<string, T> converter)
         {
             Func<string, object> untypedConverter = x => converter(x);
-            _converterRegistry.Register(typeof(T), untypedConverter);
+            _valueConverter.Register(typeof(T), untypedConverter);
         }
 
         public void SetNamespaceAlias(string uri, string alias)

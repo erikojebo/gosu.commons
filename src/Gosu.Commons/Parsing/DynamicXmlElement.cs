@@ -10,14 +10,14 @@ namespace Gosu.Commons.Parsing
     public class DynamicXmlElement : HookableDynamicObject
     {
         private readonly XElement _element;
-        private readonly ConverterRegistry _converterRegistry;
+        private readonly ValueConverter _valueConverter;
         private readonly NamespaceRegistry _namespaceRegistry;
 
-        public DynamicXmlElement(XElement element, ConverterRegistry converterRegistry,
+        public DynamicXmlElement(XElement element, ValueConverter valueConverter,
             NamespaceRegistry namespaceRegistry)
         {
             _element = element;
-            _converterRegistry = converterRegistry;
+            _valueConverter = valueConverter;
             _namespaceRegistry = namespaceRegistry;
         }
 
@@ -39,20 +39,20 @@ namespace Gosu.Commons.Parsing
 
             if (attribute != null)
             {
-                var convertibleValue = new ConvertibleStringValue(attribute.Value, _converterRegistry);
+                var convertibleValue = new ConvertibleStringValue(attribute.Value, _valueConverter);
                 return new SuccessfulInvocationResult(convertibleValue);
             }
             if (childElement != null)
             {
-                return new SuccessfulInvocationResult(new DynamicXmlElement(childElement, _converterRegistry, _namespaceRegistry));
+                return new SuccessfulInvocationResult(new DynamicXmlElement(childElement, _valueConverter, _namespaceRegistry));
             }
             if (defaultNamespaceChildElement != null)
             {
-                return new SuccessfulInvocationResult(new DynamicXmlElement(defaultNamespaceChildElement, _converterRegistry, _namespaceRegistry));
+                return new SuccessfulInvocationResult(new DynamicXmlElement(defaultNamespaceChildElement, _valueConverter, _namespaceRegistry));
             }
             if (namespaceChildElement != null)
             {
-                return new SuccessfulInvocationResult(new DynamicXmlElement(namespaceChildElement, _converterRegistry, _namespaceRegistry));
+                return new SuccessfulInvocationResult(new DynamicXmlElement(namespaceChildElement, _valueConverter, _namespaceRegistry));
             }
             if (childElements.Any())
             {
@@ -155,12 +155,12 @@ namespace Gosu.Commons.Parsing
 
         private List<DynamicXmlElement> GetDynamicXmlElements(IEnumerable<XElement> elements)
         {
-            return elements.Select(x => new DynamicXmlElement(x, _converterRegistry, _namespaceRegistry)).ToList();
+            return elements.Select(x => new DynamicXmlElement(x, _valueConverter, _namespaceRegistry)).ToList();
         }
 
         protected override InvocationResult ConversionMissing(Type type, ConversionMode conversionMode)
         {
-            var value = new ConvertibleStringValue(_element.Value, _converterRegistry);
+            var value = new ConvertibleStringValue(_element.Value, _valueConverter);
 
             if (value.CanConvertTo(type))
             {
