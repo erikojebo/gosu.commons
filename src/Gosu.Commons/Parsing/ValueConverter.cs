@@ -32,12 +32,16 @@ namespace Gosu.Commons.Parsing
 
         public object Convert(Type type, string value)
         {
+            if (HasConverterFor(type))
+            {
+                return _converters[type](value);
+            }
             if (type.IsEnum)
             {
                 return Enum.Parse(type, value);
             }
 
-            return _converters[type](value);
+            throw new InvalidConversionException("No converter was found for type: " + type);
         }
 
         public bool CanConvert(Type type)
@@ -47,6 +51,11 @@ namespace Gosu.Commons.Parsing
                 return true;
             }
 
+            return HasConverterFor(type);
+        }
+
+        private bool HasConverterFor(Type type)
+        {
             return _converters.ContainsKey(type);
         }
     }

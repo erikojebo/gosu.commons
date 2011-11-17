@@ -298,6 +298,17 @@ namespace Gosu.Specs.Commons.Parsing
         }
 
         [Test]
+        public void Custom_parser_can_be_set_for_enum_type()
+        {
+            _parser.SetConverter(x => x == "expected" ? SomeEnum.Value2 : SomeEnum.Value1);
+
+            var root = _parser.Parse("<Root Value='expected' />");
+            SomeEnum enumValue = root.Value;
+
+            Assert.AreEqual(SomeEnum.Value2, enumValue);
+        }
+
+        [Test]
         public void Values_of_child_element_can_be_read_by_accessing_properties_on_the_child()
         {
             var root = _parser.Parse(@"
