@@ -289,20 +289,40 @@ namespace Gosu.Specs.Commons.Parsing
         }
 
         [Test]
-        public void Can_assign_name_of_enum_member_to_enum_property()
+        public void Can_assign_name_of_enum_member_in_attribute_to_enum_property()
         {
             var root = _parser.Parse("<Root Value='Value2' />");
             SomeEnum enumValue = root.Value;
 
             Assert.AreEqual(SomeEnum.Value2, enumValue);
         }
+        
+        [Test]
+        public void Can_assign_name_of_enum_member_in_element_to_enum_property()
+        {
+            var root = _parser.Parse("<Root><Value>Value2</Value></Root>");
+            SomeEnum enumValue = root.Value;
+
+            Assert.AreEqual(SomeEnum.Value2, enumValue);
+        }
 
         [Test]
-        public void Custom_parser_can_be_set_for_enum_type()
+        public void Custom_parser_can_be_set_for_when_converting_attribute_value_to_enum_type()
         {
             _parser.SetConverter(x => x == "expected" ? SomeEnum.Value2 : SomeEnum.Value1);
 
             var root = _parser.Parse("<Root Value='expected' />");
+            SomeEnum enumValue = root.Value;
+
+            Assert.AreEqual(SomeEnum.Value2, enumValue);
+        }
+
+        [Test]
+        public void Custom_parser_can_be_set_for_when_converting_element_value_to_enum_type()
+        {
+            _parser.SetConverter(x => x == "expected" ? SomeEnum.Value2 : SomeEnum.Value1);
+
+            var root = _parser.Parse("<Root><Value>expected</Value></Root>");
             SomeEnum enumValue = root.Value;
 
             Assert.AreEqual(SomeEnum.Value2, enumValue);
