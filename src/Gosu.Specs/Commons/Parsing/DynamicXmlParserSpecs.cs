@@ -287,6 +287,24 @@ namespace Gosu.Specs.Commons.Parsing
 
             Assert.AreEqual(1, intVariable);
         }
+        
+        [Test]
+        public void Can_assign_guid_attribute_value_to_int_variable()
+        {
+            var root = _parser.Parse("<Root Value='D305471C-82B8-4013-ADAD-D801D202AFF5' />");
+            Guid guidVariable = root.Value;
+
+            Assert.AreEqual(new Guid("D305471C-82B8-4013-ADAD-D801D202AFF5"), guidVariable);
+        }
+
+        [Test]
+        public void Can_assign_guid_element_value_to_int_variable()
+        {
+            var root = _parser.Parse("<Root><Value>D305471C-82B8-4013-ADAD-D801D202AFF5</Value></Root>");
+            Guid intVariable = root.Value;
+
+            Assert.AreEqual(new Guid("D305471C-82B8-4013-ADAD-D801D202AFF5"), intVariable);
+        }
 
         [Test]
         public void Can_assign_name_of_enum_member_in_attribute_to_enum_property()

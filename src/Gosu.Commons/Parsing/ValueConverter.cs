@@ -18,6 +18,7 @@ namespace Gosu.Commons.Parsing
             Register<TimeSpan>(s => TimeSpan.Parse(s));
             Register<bool>(s => bool.Parse(s));
             Register<String>(s => s);
+            Register<Guid>(s => Guid.Parse(s));
         }
 
         public void Register(Type type, Func<string, object> converter)
