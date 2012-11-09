@@ -57,6 +57,7 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Internationalization\TemporaryCulture.cs" />
+    <Compile Include="Mapping\DynamicToObjectMapper.cs" />
     <Compile Include="Parsing\DynamicParserException.cs" />
     <Compile Include="Parsing\InvalidConversionException.cs" />
     <Compile Include="Parsing\ValueConverter.cs" />
