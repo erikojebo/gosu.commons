@@ -50,6 +50,13 @@ namespace Gosu.Commons.Mapping
             return this;
         }
 
+        /// <summary>
+        /// Specified a custom function for retrieving the value for a given property in the target type.
+        /// The value could be retrieved from the source object or from somewhere else.
+        /// </summary>
+        /// <param name="propertySelector">The target property for which this function should be used instead of trying to find a matching property the usual way</param>
+        /// <param name="valueSelector">The function which finds the value to write to the target property</param>
+        /// <returns>The configuration object</returns>
         public ObjectMapperConfiguration<TSource, TTarget> Custom(Expression<Func<TTarget, object>> propertySelector, Func<TSource, object> valueSelector)
         {
             CustomValueSelectors[ExpressionParser.GetPropertyName(propertySelector)] = valueSelector;
