@@ -1,4 +1,5 @@
-﻿using Gosu.Commons.Mapping;
+﻿using System;
+using Gosu.Commons.Mapping;
 using NUnit.Framework;
 
 namespace Gosu.Specs.Commons.Mapping
@@ -51,7 +52,7 @@ namespace Gosu.Specs.Commons.Mapping
         [Test]
         public void Mapping_without_a_target_object_creates_a_new_instance()
         {
-            var target = _mapper.Map<TargetWithMorePropertiesThanSource>(_source);
+            var target = _mapper.Map<SourceClass, TargetWithMorePropertiesThanSource>(_source);
 
             Assert.AreEqual("string value 1", target.StringProperty1);
             Assert.AreEqual("string value 2", target.StringProperty2);
@@ -74,7 +75,7 @@ namespace Gosu.Specs.Commons.Mapping
         [Test]
         public void Matching_properties_can_be_ignored_though_the_configuration()
         {
-            var target = _mapper.Map<TargetWithMatchingProperties>(
+            var target = _mapper.Map<SourceClass, TargetWithMatchingProperties>(
                 _source,
                 x => x.Ignore(t => t.StringProperty1)
                       .Ignore(t => t.IntProperty));
@@ -82,6 +83,29 @@ namespace Gosu.Specs.Commons.Mapping
             Assert.IsNull(target.StringProperty1);
             Assert.AreEqual("string value 2", target.StringProperty2);
             Assert.AreEqual(0, target.IntProperty);
+        }
+
+        [Test]
+        public void Custom_functions_can_be_specified_for_getting_values_of_mapped_properties()
+        {
+            var target = _mapper.Map<SourceClass, TargetWithMatchingProperties>(
+                _source,
+                x => x.Custom(t => t.StringProperty1, s => s.StringProperty2.ToUpper())
+                      .Custom(t => t.IntProperty, s => 123));
+
+            Assert.AreEqual("STRING VALUE 2", target.StringProperty1);
+            Assert.AreEqual("string value 2", target.StringProperty2);
+            Assert.AreEqual(123, target.IntProperty);
+        }
+
+        [Test]
+        public void Properties_in_the_target_which_have_custom_mapping_functions_are_mapped_even_though_they_have_no_matching_property_in_the_source_object()
+        {
+            var target = _mapper.Map<SourceClass, TargetWithMorePropertiesThanSource>(
+                _source,
+                x => x.Custom(t => t.DoubleProperty, s => 123));
+
+            Assert.AreEqual(123, target.DoubleProperty);
         }
 
         private class SourceClass

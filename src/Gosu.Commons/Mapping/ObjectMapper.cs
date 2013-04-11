@@ -11,12 +11,13 @@ namespace Gosu.Commons.Mapping
         /// from the source object to the new object
         /// </summary>
         /// <typeparam name="TTarget">The type of the object to map to</typeparam>
+        /// <typeparam name="TSource">The type of the object to map from</typeparam>
         /// <param name="source">The object to map from</param>
         /// <returns>A new instance of with properties mapped from the source object</returns>
-        public TTarget Map<TTarget>(object source)
+        public TTarget Map<TSource, TTarget>(TSource source)
             where TTarget : new()
         {
-            return Map<TTarget>(source, x => { });
+            return Map<TSource, TTarget>(source, x => { });
         }
 
         /// <summary>
@@ -24,11 +25,12 @@ namespace Gosu.Commons.Mapping
         /// from the source object to the new object
         /// </summary>
         /// <typeparam name="TTarget">The type of the object to map to</typeparam>
+        /// <typeparam name="TSource">The type of the object to map from</typeparam>
         /// <param name="source">The object to map from</param>
         /// <returns>A new instance of with properties mapped from the source object</returns>
         /// <param name="configuration">The configuration of how to perform the mapping.
         /// Could, for example, specify properties to ignore or map differently than the default.</param>
-        public TTarget Map<TTarget>(object source, Action<ObjectMapperConfiguration<TTarget>> configuration)
+        public TTarget Map<TSource, TTarget>(TSource source, Action<ObjectMapperConfiguration<TSource, TTarget>> configuration)
             where TTarget : new()
         {
             var target = new TTarget();
@@ -53,11 +55,13 @@ namespace Gosu.Commons.Mapping
         /// Finds all properties which exist in both target and source, and maps
         /// the values of those properties from the source object to the target object
         /// </summary>
+        /// <typeparam name="TTarget">The type of the object to map to</typeparam>
+        /// <typeparam name="TSource">The type of the object to map from</typeparam>
         /// <param name="source">The object to map from</param>
         /// <param name="target">The object to map to</param>
         /// <param name="configuration">The configuration of how to perform the mapping.
         /// Could, for example, specify properties to ignore or map differently than the default.</param>
-        public void Map<TTarget>(object source, TTarget target, Action<ObjectMapperConfiguration<TTarget>> configuration)
+        public void Map<TSource, TTarget>(TSource source, TTarget target, Action<ObjectMapperConfiguration<TSource, TTarget>> configuration)
         {
             var config = InitializeConfiguration(configuration);
 
@@ -71,17 +75,18 @@ namespace Gosu.Commons.Mapping
 
                 var sourceProperty = sourceProperties.FirstOrDefault(x => config.GetTargetPropertyName(x) == targetProperty.Name);
 
-                if (sourceProperty == null)
+                if (sourceProperty == null && !config.IsCustom(targetProperty))
                     continue;
 
-                var value = sourceProperty.GetValue(source, null);
+                var value = config.GetValue(source, sourceProperty, targetProperty);
                 targetProperty.SetValue(target, value, null);
             }
         }
 
-        private static InternalObjectMapperConfiguration<TTarget> InitializeConfiguration<TTarget>(Action<ObjectMapperConfiguration<TTarget>> configuration)
+        private static InternalObjectMapperConfiguration<TSource, TTarget> InitializeConfiguration<TSource, TTarget>(
+            Action<ObjectMapperConfiguration<TSource, TTarget>> configuration)
         {
-            var config = new InternalObjectMapperConfiguration<TTarget>();
+            var config = new InternalObjectMapperConfiguration<TSource, TTarget>();
 
             configuration(config);
             
