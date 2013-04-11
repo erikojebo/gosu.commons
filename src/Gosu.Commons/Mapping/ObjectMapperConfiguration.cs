@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
+using Gosu.Commons.Reflection;
+using System.Linq;
 
 namespace Gosu.Commons.Mapping
 {
-    public abstract class ObjectMapperConfiguration
+    public abstract class ObjectMapperConfiguration<TTarget>
     {
         protected Func<PropertyInfo, string> SourceToTargetPropertyNameConvention;
+        protected List<string> IgnoredProperties = new List<string>();
 
         protected ObjectMapperConfiguration()
         {
@@ -25,18 +30,36 @@ namespace Gosu.Commons.Mapping
         /// The function which returns a property name for the target object from a given property in the source object
         /// </param>
         /// <returns>The configuration object</returns>
-        public ObjectMapperConfiguration Convention(Func<PropertyInfo, string> sourceToTargetPropertyNameConvention)
+        public ObjectMapperConfiguration<TTarget> Convention(Func<PropertyInfo, string> sourceToTargetPropertyNameConvention)
         {
             SourceToTargetPropertyNameConvention = sourceToTargetPropertyNameConvention;
             return this;
         }
+
+        /// <summary>
+        /// Specified a property in the target object which should not be mapped
+        /// </summary>
+        /// <param name="propertySelector">An expression which points out a property that should be ignored</param>
+        /// <returns>The configuration object</returns>
+        public ObjectMapperConfiguration<TTarget> Ignore(Expression<Func<TTarget, object>> propertySelector)
+        {
+            var propertyName = ExpressionParser.GetPropertyName(propertySelector);
+            IgnoredProperties.Add(propertyName);
+
+            return this;
+        }
     }
 
-    internal class InternalObjectMapperConfiguration : ObjectMapperConfiguration
+    internal class InternalObjectMapperConfiguration<T> : ObjectMapperConfiguration<T>
     {
         public string GetTargetPropertyName(PropertyInfo sourcePropertyName)
         {
             return SourceToTargetPropertyNameConvention(sourcePropertyName);
+        }
+
+        public bool IsIgnored(PropertyInfo propertyInfo)
+        {
+            return IgnoredProperties.Any(x => x == propertyInfo.Name);
         }
     }
 }

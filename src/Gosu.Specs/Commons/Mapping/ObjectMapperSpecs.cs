@@ -25,7 +25,7 @@ namespace Gosu.Specs.Commons.Mapping
 
             Assert.AreEqual("string value 1", target.StringProperty1);
         }
-        
+
         [Test]
         public void Multiple_properties_with_same_name_are_mapped()
         {
@@ -64,11 +64,24 @@ namespace Gosu.Specs.Commons.Mapping
         public void A_convention_can_be_used_to_match_properties_with_different_names()
         {
             var target = new TargetWithDifferentNames();
-            
+
             _mapper.Map(_source, target, x => x.Convention(p => "SomeOtherNameFor" + p.Name));
-        
+
             Assert.AreEqual("string value 1", target.SomeOtherNameForStringProperty1);
             Assert.AreEqual("string value 2", target.SomeOtherNameForStringProperty2);
+        }
+
+        [Test]
+        public void Matching_properties_can_be_ignored_though_the_configuration()
+        {
+            var target = _mapper.Map<TargetWithMatchingProperties>(
+                _source,
+                x => x.Ignore(t => t.StringProperty1)
+                      .Ignore(t => t.IntProperty));
+
+            Assert.IsNull(target.StringProperty1);
+            Assert.AreEqual("string value 2", target.StringProperty2);
+            Assert.AreEqual(0, target.IntProperty);
         }
 
         private class SourceClass
@@ -89,14 +102,14 @@ namespace Gosu.Specs.Commons.Mapping
 
         private class TargetWithMatchingProperties
         {
-            public string StringProperty1 { get; set; } 
+            public string StringProperty1 { get; set; }
             public string StringProperty2 { get; set; }
             public int IntProperty { get; set; }
         }
 
         private class TargetWithMorePropertiesThanSource
         {
-            public string StringProperty1 { get; set; } 
+            public string StringProperty1 { get; set; }
             public string StringProperty2 { get; set; }
             public int IntProperty { get; set; }
             public bool BoolProperty { get; set; }
@@ -105,13 +118,13 @@ namespace Gosu.Specs.Commons.Mapping
 
         private class TargetWithMatchingSingleProperty
         {
-            public string StringProperty1 { get; set; } 
+            public string StringProperty1 { get; set; }
         }
 
         private class TargetWithDifferentNames
         {
-            public string SomeOtherNameForStringProperty1 { get; set; } 
-            public string SomeOtherNameForStringProperty2 { get; set; } 
+            public string SomeOtherNameForStringProperty1 { get; set; }
+            public string SomeOtherNameForStringProperty2 { get; set; }
         }
     }
 }
