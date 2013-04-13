@@ -54,11 +54,37 @@ namespace Gosu.Commons.Mapping
         
         public object Map(Type targetType, object source, IObjectMapperConfiguration configuration)
         {
-            var target = Activator.CreateInstance(targetType);
+            object target;
+
+            if (targetType.IsArray)
+            {
+                var length = GetCollectionLength(source);
+                target = Array.CreateInstance(targetType.GetElementType(), length);
+            }
+            else
+            {
+                target = Activator.CreateInstance(targetType);    
+            }
 
             Map(source, target, configuration);
 
             return target;
+        }
+
+        private int GetCollectionLength(object source)
+        {
+            var sourceType = source.GetType();
+
+            if (sourceType.IsArray)
+            {
+                return ((object[])source).Length;
+            }
+            if (source is ICollection)
+            {
+                return ((ICollection)source).Count;
+            }
+
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -92,6 +118,11 @@ namespace Gosu.Commons.Mapping
         public void Map(object source, object target, IObjectMapperConfiguration config)
         {
             //if (target.GetType().GetGenericTypeDefinition() == typeof(List<>))
+            if (target.GetType().IsArray)
+            {
+                MapArray(source, target);
+                return;
+            }
             if (target is IEnumerable)
             {
                 MapCollection(source, target);
@@ -112,8 +143,37 @@ namespace Gosu.Commons.Mapping
                     continue;
 
                 var value = config.GetValue(source, sourceProperty, targetProperty);
+
+                if (!CanBeAssignedWithoutMapping(targetProperty, value))
+                    value = Map(targetProperty.PropertyType, value);
+
                 targetProperty.SetValue(target, value, null);
             }
+        }
+
+        private void MapArray(object source, object target)
+        {
+            var targetElementType = target.GetType().GetElementType();
+
+            var index = 0;
+            
+            foreach (var sourceElement in (IEnumerable)source)
+            {
+                ((object[])target)[index] = Map(targetElementType, sourceElement);
+
+                index++;
+            }
+        }
+
+        private static bool CanBeAssignedWithoutMapping(PropertyInfo targetProperty, object value)
+        {
+            // If the value is of the same type or of a sub type of the property type in the 
+            // target, then the value can be assigned to the target property without further ado.
+            // If the value is a value type just try to assign it. For example, trying to assign
+            // an int to a double property would not pass the first test, but it would still be a
+            // valid assignment. Since we can't really do much mapping between value type values
+            // just try to go ahead with the assignment.
+            return targetProperty.PropertyType.IsInstanceOfType(value) || value is ValueType;
         }
 
         private void MapCollection(object source, object target)

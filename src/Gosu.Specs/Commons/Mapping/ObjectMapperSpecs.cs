@@ -134,7 +134,7 @@ namespace Gosu.Specs.Commons.Mapping
 
             var target = _mapper.Map<TargetClassWithCollection>(source);
 
-            Assert.AreEqual("String value 1", target.StringProperty1);
+            Assert.AreEqual("string value 1", target.StringProperty1);
             Assert.AreEqual(2, target.Children.Count);
             Assert.AreEqual(1, target.Children[0].ChildId);
             Assert.AreEqual(2, target.Children[1].ChildId);
@@ -155,7 +155,33 @@ namespace Gosu.Specs.Commons.Mapping
         [Test]
         public void List_can_be_mapped_to_array()
         {
-            throw new NotImplementedException();
+            var sources = new List<SourceClass>
+                {
+                    new SourceClass { StringProperty1 = "first string value" },
+                    new SourceClass { StringProperty1 = "second string value"}
+                };
+
+            var targets = (TargetWithMatchingProperties[])_mapper.Map(typeof(TargetWithMatchingProperties[]), sources);
+
+            Assert.AreEqual(2, targets.Length);
+            Assert.AreEqual("first string value", targets[0].StringProperty1);
+            Assert.AreEqual("second string value", targets[1].StringProperty1);
+        }
+
+        [Test]
+        public void List_can_be_mapped_to_IList()
+        {
+            var sources = new List<SourceClass>
+                {
+                    new SourceClass { StringProperty1 = "first string value" },
+                    new SourceClass { StringProperty1 = "second string value"}
+                };
+
+            var targets = (IList<TargetWithMatchingProperties>)_mapper.Map(typeof(IList<TargetWithMatchingProperties>), sources);
+
+            Assert.AreEqual(2, targets.Count);
+            Assert.AreEqual("first string value", targets[0].StringProperty1);
+            Assert.AreEqual("second string value", targets[1].StringProperty1);
         }
 
         private class SourceClass
@@ -220,7 +246,7 @@ namespace Gosu.Specs.Commons.Mapping
         private class TargetClassWithCollection
         {
             public string StringProperty1 { get; set; }
-            public IList<TargetChild1> Children { get; set; }
+            public List<TargetChild1> Children { get; set; }
         }
 
         private class TargetChild1
