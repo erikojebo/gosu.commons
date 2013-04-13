@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using Gosu.Commons.Reflection;
 using NUnit.Framework;
@@ -184,6 +185,29 @@ namespace Gosu.Specs.Commons.Reflection
             _instance.ResetToDefaultValue("DoubleProperty");
 
             Assert.AreEqual(0, _instance.DoubleProperty);
+        }
+
+        [Test]
+        public void HasGenericTypeDefinition_IEnumerable_of_T_returns_true_for_List_of_T()
+        {
+            Assert.IsTrue(typeof(List<int>).HasGenericTypeDefinition(typeof(IEnumerable<>)));
+        }
+
+        [Test]
+        public void HasGenericTypeDefinition_IEnumerable_of_T_returns_true_for_IList_of_T()
+        {
+            Assert.IsTrue(typeof(IList<int>).HasGenericTypeDefinition(typeof(IEnumerable<>)));
+        }
+        
+        [Test]
+        public void HasGenericTypeDefinition_IEnumerable_of_T_returns_true_for_non_generic_custom_collection_class_derrived_from_List_of_T()
+        {
+            Assert.IsTrue(typeof(CustomCollection).HasGenericTypeDefinition(typeof(IEnumerable<>)));
+        }
+
+        private class CustomCollection : List<int>
+        {
+            
         }
 
         private class Class

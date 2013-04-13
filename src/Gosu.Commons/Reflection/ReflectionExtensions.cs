@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Gosu.Commons.Extensions;
 
 namespace Gosu.Commons.Reflection
@@ -81,6 +82,12 @@ namespace Gosu.Commons.Reflection
             }
 
             return null;
+        }
+
+        public static bool HasGenericTypeDefinition(this Type type, Type genericType)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == genericType || 
+                type.GetInterfaces().Any(x => x.HasGenericTypeDefinition(genericType));
         }
     }
 }

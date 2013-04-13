@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Gosu.Commons.Mapping;
 using NUnit.Framework;
 
@@ -116,7 +116,7 @@ namespace Gosu.Specs.Commons.Mapping
             var sources = new List<SourceClass>
                 {
                     new SourceClass { StringProperty1 = "first string value" },
-                    new SourceClass { StringProperty1 = "second string value"}
+                    new SourceClass { StringProperty1 = "second string value" }
                 };
 
             var targets = _mapper.Map<List<TargetWithMatchingProperties>>(sources);
@@ -139,17 +139,36 @@ namespace Gosu.Specs.Commons.Mapping
             Assert.AreEqual(1, target.Children[0].ChildId);
             Assert.AreEqual(2, target.Children[1].ChildId);
         }
-        
+
         [Test]
         public void Mapping_object_with_non_null_collection_to_object_with_null_collection_creates_list()
         {
-            throw new NotImplementedException();
+            var source = new SourceClassWithCollection();
+            source.Children = new[] { new SourceChild1 { ChildId = 1 }, new SourceChild1 { ChildId = 2 } };
+
+            var target = new TargetClassWithCollection();
+            target.Children = null;
+
+            _mapper.Map(source, target);
+
+            Assert.AreEqual("string value 1", target.StringProperty1);
+            Assert.AreEqual(2, target.Children.Count);
+            Assert.AreEqual(1, target.Children[0].ChildId);
+            Assert.AreEqual(2, target.Children[1].ChildId);
         }
 
         [Test]
         public void Mapping_object_with_non_null_array_to_object_with_null_collection_creates_list()
         {
-            throw new NotImplementedException();
+            var source = new SourceClassWithArray();
+            source.Children = new[] { new SourceChild1 { ChildId = 1 }, new SourceChild1 { ChildId = 2 } };
+
+            var target = _mapper.Map<TargetClassWithCollection>(source);
+
+            Assert.AreEqual("string value 1", target.StringProperty1);
+            Assert.AreEqual(2, target.Children.Count);
+            Assert.AreEqual(1, target.Children[0].ChildId);
+            Assert.AreEqual(2, target.Children[1].ChildId);
         }
 
         [Test]
@@ -158,7 +177,7 @@ namespace Gosu.Specs.Commons.Mapping
             var sources = new List<SourceClass>
                 {
                     new SourceClass { StringProperty1 = "first string value" },
-                    new SourceClass { StringProperty1 = "second string value"}
+                    new SourceClass { StringProperty1 = "second string value" }
                 };
 
             var targets = (TargetWithMatchingProperties[])_mapper.Map(typeof(TargetWithMatchingProperties[]), sources);
@@ -174,7 +193,7 @@ namespace Gosu.Specs.Commons.Mapping
             var sources = new List<SourceClass>
                 {
                     new SourceClass { StringProperty1 = "first string value" },
-                    new SourceClass { StringProperty1 = "second string value"}
+                    new SourceClass { StringProperty1 = "second string value" }
                 };
 
             var targets = (IList<TargetWithMatchingProperties>)_mapper.Map(typeof(IList<TargetWithMatchingProperties>), sources);
@@ -182,6 +201,103 @@ namespace Gosu.Specs.Commons.Mapping
             Assert.AreEqual(2, targets.Count);
             Assert.AreEqual("first string value", targets[0].StringProperty1);
             Assert.AreEqual("second string value", targets[1].StringProperty1);
+        }
+
+        [Test]
+        public void IEnumerable_can_be_mapped_to_IEnumerable()
+        {
+            IEnumerable<SourceClass> sources = new List<SourceClass>
+                {
+                    new SourceClass { StringProperty1 = "first string value" },
+                    new SourceClass { StringProperty1 = "second string value" }
+                };
+
+            var targets = (IEnumerable<TargetWithMatchingProperties>)_mapper.Map(typeof(IEnumerable<TargetWithMatchingProperties>), sources);
+
+            Assert.AreEqual(2, targets.Count());
+            Assert.AreEqual("first string value", targets.ElementAt(0).StringProperty1);
+            Assert.AreEqual("second string value", targets.ElementAt(1).StringProperty1);
+        }
+
+        [Test]
+        public void Mapping_null_collection_sets_target_collection_to_null()
+        {
+            IList<SourceClass> sources = null;
+            var targets = (IEnumerable<TargetWithMatchingProperties>)_mapper.Map(typeof(IEnumerable<TargetWithMatchingProperties>), sources);
+
+            Assert.IsNull(targets);
+        }
+
+        [Test]
+        public void Enums_are_mapped_by_int_value()
+        {
+            var source = new RelatedEntity { Enum = SomeEnum.Value2 };
+            var target = _mapper.Map<RelatedDTO>(source);
+
+            Assert.AreEqual(SomeOtherEnum.OtherValue2, target.Enum);
+        }
+
+        [Test]
+        public void Mapping_is_done_recursively()
+        {
+            var entity = new RootEntity
+                {
+                    String = "string 1",
+                    Related = new RelatedEntity
+                        {
+                            Enum = SomeEnum.Value3
+                        },
+                    Children = new[]
+                        {
+                            new ChildEntity()
+                                {
+                                    Int = 1,
+                                    GrandChildren = null,
+                                },
+                            new ChildEntity()
+                                {
+                                    Int = 2,
+                                    GrandChildren = new List<GrandChildEntity>()
+                                        {
+                                            new GrandChildEntity
+                                                {
+                                                    Double = 1.23,
+                                                    AnotherRelated = new RelatedEntity
+                                                        {
+                                                            Enum = SomeEnum.Value2
+                                                        }
+                                                },
+                                            new GrandChildEntity
+                                                {
+                                                    Double = 2.34,
+                                                    AnotherRelated = null
+                                                }
+                                        }
+                                },
+                        }
+                };
+
+            var rootDto = _mapper.Map<RootDTO>(entity);
+
+            Assert.AreEqual("string 1", rootDto.String);
+            Assert.IsNotNull(rootDto.Related);
+            Assert.AreEqual(SomeOtherEnum.OtherValue3, rootDto.Related.Enum);
+            Assert.AreEqual(2, rootDto.Children.Count());
+
+            var firstChildDto = rootDto.Children.First();
+            var secondChildDto = rootDto.Children.Last();
+            
+            Assert.AreEqual(1, firstChildDto.Int);
+            Assert.IsNull(firstChildDto.GrandChildren);
+
+            Assert.AreEqual(2, secondChildDto.Int);
+            Assert.IsNotNull(secondChildDto.GrandChildren);
+            Assert.AreEqual(2, secondChildDto.GrandChildren.Count());
+            Assert.AreEqual(1.23, secondChildDto.GrandChildren.First().Double);
+            Assert.IsNotNull(secondChildDto.GrandChildren.First().AnotherRelated);
+            Assert.AreEqual(SomeOtherEnum.OtherValue2, secondChildDto.GrandChildren.First().AnotherRelated.Enum);
+            Assert.IsNull(secondChildDto.GrandChildren.Last().AnotherRelated);
+            Assert.AreEqual(2.34, secondChildDto.GrandChildren.Last().Double);
         }
 
         private class SourceClass
@@ -211,9 +327,20 @@ namespace Gosu.Specs.Commons.Mapping
             public IList<SourceChild1> Children { get; set; }
         }
 
+        private class SourceClassWithArray
+        {
+            public SourceClassWithArray()
+            {
+                StringProperty1 = "string value 1";
+            }
+
+            public string StringProperty1 { get; set; }
+            public IList<SourceChild1> Children { get; set; }
+        }
+
         private class SourceChild1
         {
-            public int ChildId { get; set; } 
+            public int ChildId { get; set; }
         }
 
         private class TargetWithMatchingProperties
@@ -251,7 +378,64 @@ namespace Gosu.Specs.Commons.Mapping
 
         private class TargetChild1
         {
-            public int ChildId { get; set; } 
+            public int ChildId { get; set; }
+        }
+
+        private class RootEntity
+        {
+            public string String { get; set; }
+            public ChildEntity[] Children { get; set; }
+            public RelatedEntity Related { get; set; }
+        }
+
+        private enum SomeEnum
+        {
+            Value1,
+            Value2,
+            Value3
+        }
+
+        private class RelatedEntity
+        {
+            public SomeEnum Enum { get; set; }
+        }
+
+        private class ChildEntity
+        {
+            public int Int { get; set; }
+            public IEnumerable<GrandChildEntity> GrandChildren { get; set; }
+        }
+
+        private class GrandChildEntity
+        {
+            public double Double { get; set; }
+            public RelatedEntity AnotherRelated { get; set; }
+        }
+
+        private class RootDTO
+        {
+            public string String { get; set; }
+            public ChildDTO[] Children { get; set; }
+            public RelatedDTO Related { get; set; }
+        }
+
+        private enum SomeOtherEnum { OtherValue1, OtherValue2, OtherValue3 }
+
+        private class RelatedDTO
+        {
+            public SomeOtherEnum Enum { get; set; }
+        }
+
+        private class ChildDTO
+        {
+            public int Int { get; set; }
+            public IEnumerable<GrandChildDTO> GrandChildren { get; set; }
+        }
+
+        private class GrandChildDTO
+        {
+            public double Double { get; set; }
+            public RelatedDTO AnotherRelated { get; set; }
         }
     }
 }

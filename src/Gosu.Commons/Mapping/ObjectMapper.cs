@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using Gosu.Commons.Reflection;
 
 namespace Gosu.Commons.Mapping
 {
@@ -16,7 +17,7 @@ namespace Gosu.Commons.Mapping
         /// <param name="source">The object to map from</param>
         /// <returns>A new instance of with properties mapped from the source object</returns>
         public TTarget Map<TTarget>(object source)
-            where TTarget : new()
+            where TTarget : class, new()
         {
             return Map<TTarget>(source, new NullObjectMapperConfiguration());
         }
@@ -32,14 +33,17 @@ namespace Gosu.Commons.Mapping
         /// <param name="configuration">The configuration of how to perform the mapping.
         /// Could, for example, specify properties to ignore or map differently than the default.</param>
         public TTarget Map<TSource, TTarget>(TSource source, Action<ObjectMapperConfiguration<TSource, TTarget>> configuration)
-            where TTarget : new()
+            where TTarget : class, new()
         {
             return Map<TTarget>(source, InitializeConfiguration(configuration));
         }
         
         public TTarget Map<TTarget>(object source, IObjectMapperConfiguration configuration)
-            where TTarget : new()
+            where TTarget : class, new()
         {
+            if (source == null)
+                return null;
+
             var target = new TTarget();
 
             Map(source, target, configuration);
@@ -54,21 +58,45 @@ namespace Gosu.Commons.Mapping
         
         public object Map(Type targetType, object source, IObjectMapperConfiguration configuration)
         {
-            object target;
+            if (source == null)
+                return null;
 
-            if (targetType.IsArray)
-            {
-                var length = GetCollectionLength(source);
-                target = Array.CreateInstance(targetType.GetElementType(), length);
-            }
-            else
-            {
-                target = Activator.CreateInstance(targetType);    
-            }
+            var target = InstantiateTarget(targetType, source);
 
             Map(source, target, configuration);
 
             return target;
+        }
+
+        private object InstantiateTarget(Type targetType, object source)
+        {
+            object target;
+
+            if (targetType.IsArray)
+                target = InstantiateArray(targetType, source);
+            else if (targetType.IsInterface && IsIEnumerable(targetType))
+                target = InstantiateList(targetType);
+            else
+                target = Activator.CreateInstance(targetType);
+
+            return target;
+        }
+
+        private object InstantiateArray(Type targetType, object source)
+        {
+            var length = GetCollectionLength(source);
+            return Array.CreateInstance(targetType.GetElementType(), length);
+        }
+
+        private static object InstantiateList(Type targetType)
+        {
+            var listType = typeof(List<>).MakeGenericType(targetType.GetGenericArguments().First());
+            return Activator.CreateInstance(listType);
+        }
+
+        private static bool IsIEnumerable(Type targetType)
+        {
+            return targetType.HasGenericTypeDefinition(typeof(IEnumerable<>));
         }
 
         private int GetCollectionLength(object source)
@@ -76,15 +104,12 @@ namespace Gosu.Commons.Mapping
             var sourceType = source.GetType();
 
             if (sourceType.IsArray)
-            {
                 return ((object[])source).Length;
-            }
-            if (source is ICollection)
-            {
-                return ((ICollection)source).Count;
-            }
 
-            throw new NotImplementedException();
+            if (source is ICollection)
+                return ((ICollection)source).Count;
+
+            throw new Exception(string.Format("Mapping of the collection type {0} is not supported", sourceType.Name));
         }
 
         /// <summary>
@@ -117,18 +142,24 @@ namespace Gosu.Commons.Mapping
 
         public void Map(object source, object target, IObjectMapperConfiguration config)
         {
-            //if (target.GetType().GetGenericTypeDefinition() == typeof(List<>))
-            if (target.GetType().IsArray)
+            // If the source object is a null collection, just let the ordinary mapping handle pushing
+            // the null value into the matching property on the target
+            if (target.GetType().IsArray && source != null)
             {
                 MapArray(source, target);
                 return;
             }
-            if (target is IEnumerable)
+            if (target is IEnumerable && source != null)
             {
                 MapCollection(source, target);
                 return;
             }
 
+            MapObject(source, target, config);
+        }
+
+        private void MapObject(object source, object target, IObjectMapperConfiguration config)
+        {
             var targetProperties = GetProperties(target);
             var sourceProperties = GetProperties(source);
 
