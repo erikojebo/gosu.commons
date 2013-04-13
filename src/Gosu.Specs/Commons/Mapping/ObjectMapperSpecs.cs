@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Gosu.Commons.Mapping;
 using NUnit.Framework;
 
@@ -52,7 +54,7 @@ namespace Gosu.Specs.Commons.Mapping
         [Test]
         public void Mapping_without_a_target_object_creates_a_new_instance()
         {
-            var target = _mapper.Map<SourceClass, TargetWithMorePropertiesThanSource>(_source);
+            var target = _mapper.Map<TargetWithMorePropertiesThanSource>(_source);
 
             Assert.AreEqual("string value 1", target.StringProperty1);
             Assert.AreEqual("string value 2", target.StringProperty2);
@@ -108,6 +110,54 @@ namespace Gosu.Specs.Commons.Mapping
             Assert.AreEqual(123, target.DoubleProperty);
         }
 
+        [Test]
+        public void Collection_of_objects_can_be_mapped_to_new_collection_of_mapped_items()
+        {
+            var sources = new List<SourceClass>
+                {
+                    new SourceClass { StringProperty1 = "first string value" },
+                    new SourceClass { StringProperty1 = "second string value"}
+                };
+
+            var targets = _mapper.Map<List<TargetWithMatchingProperties>>(sources);
+
+            Assert.AreEqual(2, targets.Count);
+            Assert.AreEqual("first string value", targets[0].StringProperty1);
+            Assert.AreEqual("second string value", targets[1].StringProperty1);
+        }
+
+        [Test]
+        public void Items_in_matching_collection_are_mapped_to_new_instances_and_added_to_the_target_collection()
+        {
+            var source = new SourceClassWithCollection();
+            source.Children = new[] { new SourceChild1 { ChildId = 1 }, new SourceChild1 { ChildId = 2 } };
+
+            var target = _mapper.Map<TargetClassWithCollection>(source);
+
+            Assert.AreEqual("String value 1", target.StringProperty1);
+            Assert.AreEqual(2, target.Children.Count);
+            Assert.AreEqual(1, target.Children[0].ChildId);
+            Assert.AreEqual(2, target.Children[1].ChildId);
+        }
+        
+        [Test]
+        public void Mapping_object_with_non_null_collection_to_object_with_null_collection_creates_list()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void Mapping_object_with_non_null_array_to_object_with_null_collection_creates_list()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void List_can_be_mapped_to_array()
+        {
+            throw new NotImplementedException();
+        }
+
         private class SourceClass
         {
             public SourceClass()
@@ -122,6 +172,22 @@ namespace Gosu.Specs.Commons.Mapping
             public string StringProperty2 { get; set; }
             public int IntProperty { get; set; }
             public bool BoolProperty { get; set; }
+        }
+
+        private class SourceClassWithCollection
+        {
+            public SourceClassWithCollection()
+            {
+                StringProperty1 = "string value 1";
+            }
+
+            public string StringProperty1 { get; set; }
+            public IList<SourceChild1> Children { get; set; }
+        }
+
+        private class SourceChild1
+        {
+            public int ChildId { get; set; } 
         }
 
         private class TargetWithMatchingProperties
@@ -149,6 +215,17 @@ namespace Gosu.Specs.Commons.Mapping
         {
             public string SomeOtherNameForStringProperty1 { get; set; }
             public string SomeOtherNameForStringProperty2 { get; set; }
+        }
+
+        private class TargetClassWithCollection
+        {
+            public string StringProperty1 { get; set; }
+            public IList<TargetChild1> Children { get; set; }
+        }
+
+        private class TargetChild1
+        {
+            public int ChildId { get; set; } 
         }
     }
 }

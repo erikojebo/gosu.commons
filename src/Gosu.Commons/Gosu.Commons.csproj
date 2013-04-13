@@ -59,6 +59,9 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Internationalization\TemporaryCulture.cs" />
     <Compile Include="Mapping\DynamicToObjectMapper.cs" />
+    <Compile Include="Mapping\InternalObjectMapperConfiguration.cs" />
+    <Compile Include="Mapping\IObjectMapperConfiguration.cs" />
+    <Compile Include="Mapping\NullObjectMapperConfiguration.cs" />
     <Compile Include="Mapping\ObjectMapper.cs" />
     <Compile Include="Mapping\ObjectMapperConfiguration.cs" />
     <Compile Include="Parsing\DynamicParserException.cs" />

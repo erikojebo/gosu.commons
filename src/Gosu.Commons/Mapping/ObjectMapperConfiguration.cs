@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Gosu.Commons.Reflection;
-using System.Linq;
 
 namespace Gosu.Commons.Mapping
 {
@@ -61,32 +60,6 @@ namespace Gosu.Commons.Mapping
         {
             CustomValueSelectors[ExpressionParser.GetPropertyName(propertySelector)] = valueSelector;
             return this;
-        }
-    }
-
-    internal class InternalObjectMapperConfiguration<TSource, TTarget> : ObjectMapperConfiguration<TSource, TTarget>
-    {
-        public string GetTargetPropertyName(PropertyInfo sourcePropertyName)
-        {
-            return SourceToTargetPropertyNameConvention(sourcePropertyName);
-        }
-
-        public bool IsIgnored(PropertyInfo propertyInfo)
-        {
-            return IgnoredProperties.Any(x => x == propertyInfo.Name);
-        }
-
-        public object GetValue(object source, PropertyInfo sourceProperty, PropertyInfo targetProperty)
-        {
-            if (CustomValueSelectors.ContainsKey(targetProperty.Name))
-                return CustomValueSelectors[targetProperty.Name]((TSource)source);
-
-            return sourceProperty.GetValue(source, null);
-        }
-
-        public bool IsCustom(PropertyInfo targetProperty)
-        {
-            return CustomValueSelectors.ContainsKey(targetProperty.Name);
         }
     }
 }
