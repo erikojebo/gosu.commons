@@ -425,7 +425,7 @@ namespace Gosu.Specs.Commons.Mapping
         }
 
         [Test]
-        public void Custom_mapping_exapmle_for_fullname()
+        public void Custom_mapping_example_for_fullname()
         {
             var person = new Person
                 {
@@ -618,17 +618,17 @@ namespace Gosu.Specs.Commons.Mapping
             public string Name { get; set; }
         }
 
-    public class Person
-    {
-        public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-    }
+        public class Person
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
 
-    public class PersonViewModel
-    {
-        public int Id { get; set; }
-        public string FullName { get; set; } 
-    }
+        public class PersonViewModel
+        {
+            public int Id { get; set; }
+            public string FullName { get; set; } 
+        }
     }
 }
