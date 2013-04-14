@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Gosu.Commons</name>
+    </assembly>
+    <members>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapperConfiguration`2.Convention(System.Func{System.Reflection.PropertyInfo,System.String})">
+            <summary>
+            Specifies how to get the name of a property in the target object
+            from a given property name in the source object.
+            </summary>
+            <example>If the source object has properties which use a three letter Hungarian notation prefix, 
+            such as 'StrValue', 'StrSomeOtherValue', 'IntSomeIntValue' and you try to escape from that
+            horrible object to another object with properties called 'Value', 'SomeOtherValue' and 'SomeIntValue',
+            you could specify a convention which strips the first three letters of each source property name
+            to get the target property name.</example>
+            <param name="sourceToTargetPropertyNameConvention">
+            The function which returns a property name for the target object from a given property in the source object
+            </param>
+            <returns>The configuration object</returns>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapperConfiguration`2.Ignore(System.Linq.Expressions.Expression{System.Func{`1,System.Object}})">
+            <summary>
+            Specified a property in the target object which should not be mapped
+            </summary>
+            <param name="propertySelector">An expression which points out a property that should be ignored</param>
+            <returns>The configuration object</returns>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapperConfiguration`2.Custom(System.Linq.Expressions.Expression{System.Func{`1,System.Object}},System.Func{`0,System.Object})">
+            <summary>
+            Specified a custom function for retrieving the value for a given property in the target type.
+            The value could be retrieved from the source object or from somewhere else.
+            </summary>
+            <param name="propertySelector">The target property for which this function should be used instead of trying to find a matching property the usual way</param>
+            <param name="valueSelector">The function which finds the value to write to the target property</param>
+            <returns>The configuration object</returns>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapper.Map``1(System.Object)">
+            <summary>
+            Creates a new instance of the target type and maps all matching properties
+            from the source object to the new object
+            </summary>
+            <typeparam name="TTarget">The type of the object to map to</typeparam>
+            <param name="source">The object to map from</param>
+            <returns>A new instance of with properties mapped from the source object</returns>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapper.Map``2(``0,System.Action{Gosu.Commons.Mapping.ObjectMapperConfiguration{``0,``1}})">
+            <summary>
+            Creates a new instance of the target type and maps all matching properties
+            from the source object to the new object
+            </summary>
+            <typeparam name="TTarget">The type of the object to map to</typeparam>
+            <typeparam name="TSource">The type of the object to map from</typeparam>
+            <param name="source">The object to map from</param>
+            <returns>A new instance of with properties mapped from the source object</returns>
+            <param name="configuration">The configuration of how to perform the mapping.
+            Could, for example, specify properties to ignore or map differently than the default.</param>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapper.Map``1(System.Object,Gosu.Commons.Mapping.IObjectMapperConfiguration)">
+            <summary>
+            Creates a new instance of the target type and maps all matching properties
+            from the source object to the new object
+            </summary>
+            <typeparam name="TTarget">The type of the object to map to</typeparam>
+            <param name="source">The object to map from</param>
+            <param name="configuration">The configuration of how to perform the mapping.
+            Could, for example, specify properties to ignore or map differently than the default.</param>
+            <returns>A new instance of with properties mapped from the source object</returns>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapper.Map(System.Type,System.Object)">
+            <summary>
+            Creates a new instance of the target type and maps all matching properties
+            from the source object to the new object
+            </summary>
+            <param name="targetType">The type of the object to map to</param>
+            <param name="source">The object to map from</param>
+            <returns>A new instance of with properties mapped from the source object</returns>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapper.Map(System.Type,System.Object,Gosu.Commons.Mapping.IObjectMapperConfiguration)">
+            <summary>
+            Creates a new instance of the target type and maps all matching properties
+            from the source object to the new object
+            </summary>
+            <param name="targetType">The type of the object to map to</param>
+            <param name="source">The object to map from</param>
+            <param name="configuration">The configuration of how to perform the mapping.
+            Could, for example, specify properties to ignore or map differently than the default.</param>
+            <returns>A new instance of with properties mapped from the source object</returns>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapper.Map(System.Object,System.Object)">
+            <summary>
+            Finds all properties which exist in both target and source, and maps
+            the values of those properties from the source object to the target object
+            </summary>
+            <param name="source">The object to map from</param>
+            <param name="target">The object to map to</param>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapper.Map``2(``0,``1,System.Action{Gosu.Commons.Mapping.ObjectMapperConfiguration{``0,``1}})">
+            <summary>
+            Finds all properties which exist in both target and source, and maps
+            the values of those properties from the source object to the target object
+            </summary>
+            <typeparam name="TTarget">The type of the object to map to</typeparam>
+            <typeparam name="TSource">The type of the object to map from</typeparam>
+            <param name="source">The object to map from</param>
+            <param name="target">The object to map to</param>
+            <param name="configuration">The configuration of how to perform the mapping.
+            Could, for example, specify properties to ignore or map differently than the default.</param>
+        </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapper.Map(System.Object,System.Object,Gosu.Commons.Mapping.IObjectMapperConfiguration)">
+            <summary>
+            Finds all properties which exist in both target and source, and maps
+            the values of those properties from the source object to the target object
+            </summary>
+            <param name="source">The object to map from</param>
+            <param name="target">The object to map to</param>
+            <param name="config">The configuration of how to perform the mapping.
+            Could, for example, specify properties to ignore or map differently than the default.</param>
+        </member>
+    </members>
+</doc>
