@@ -317,6 +317,129 @@ namespace Gosu.Specs.Commons.Mapping
             Assert.AreEqual("string value 2", target.SomeOtherNameForStringProperty2);
         }
 
+        [Test]
+        public void User_with_orders_example()
+        {
+            var user = new User
+                {
+                    Username = "User 1",
+                    Password = "Password 1",
+                    Id = 123,
+                    Orders = new List<Order>
+                        {
+                            new Order { Id = 234 },
+                            new Order { Id = 345 }
+                        }
+                };
+
+            var userDto = _mapper.Map<UserDTO>(user);
+
+            Assert.AreEqual("User 1", userDto.Username);
+            Assert.AreEqual("Password 1", userDto.Password);
+            Assert.AreEqual(123, userDto.Id);
+            Assert.AreEqual(2, userDto.Orders.Length);
+            Assert.AreEqual(234, userDto.Orders[0].Id);
+            Assert.AreEqual(345, userDto.Orders[1].Id);
+        }
+
+        [Test]
+        public void User_with_orders_mapped_to_exsisting_instance_example()
+        {
+            var user = new User
+                {
+                    Username = "User 1",
+                    Password = "Password 1",
+                    Id = 123,
+                    Orders = new List<Order>
+                        {
+                            new Order { Id = 234 },
+                            new Order { Id = 345 }
+                        }
+                };
+
+            var userDto = new UserDTO();
+
+            _mapper.Map(user, userDto);
+
+            Assert.AreEqual("User 1", userDto.Username);
+            Assert.AreEqual("Password 1", userDto.Password);
+            Assert.AreEqual(123, userDto.Id);
+            Assert.AreEqual(2, userDto.Orders.Length);
+            Assert.AreEqual(234, userDto.Orders[0].Id);
+            Assert.AreEqual(345, userDto.Orders[1].Id);
+        }
+
+        [Test]
+        public void User_mapping_ignoring_properties_example()
+        {
+            var user = new User
+                {
+                    Username = "User 1",
+                    Password = "Password 1",
+                    Id = 123,
+                    Orders = new List<Order>
+                        {
+                            new Order { Id = 234 },
+                            new Order { Id = 345 }
+                        }
+                };
+
+            var userDto = _mapper.Map<User, UserDTO>(user, x => x.Ignore(u => u.Password));
+
+            Assert.IsNull(userDto.Password);
+        }
+
+        [Test]
+        public void Naming_convention_example()
+        {
+            var ugly = new UglyThirdPartyClass
+                {
+                    Prop_IntId = 123,
+                    Prop_StrName = "name"
+                };
+
+            var mapper = new ObjectMapper();
+            var nice = mapper.Map<UglyThirdPartyClass, NiceClass>(ugly, x => x.Convention(propertyInfo => propertyInfo.Name.Substring(8)));
+
+            Assert.AreEqual(123, nice.Id);
+            Assert.AreEqual("name", nice.Name);
+        }
+        
+        [Test]
+        public void Naming_convention_example_with_preconfiguration()
+        {
+            var ugly = new UglyThirdPartyClass
+                {
+                    Prop_IntId = 123,
+                    Prop_StrName = "name"
+                };
+
+            var mapper = new ObjectMapper();
+
+            mapper.ConfigureMap<UglyThirdPartyClass, NiceClass>(x => x.Convention(propertyInfo => propertyInfo.Name.Substring(8)));
+            
+            var nice = mapper.Map<NiceClass>(ugly);
+
+            Assert.AreEqual(123, nice.Id);
+            Assert.AreEqual("name", nice.Name);
+        }
+
+        [Test]
+        public void Custom_mapping_exapmle_for_fullname()
+        {
+            var person = new Person
+                {
+                    Id = 123,
+                    FirstName = "Steve",
+                    LastName = "Smith"
+                };
+
+            var viewModel = _mapper.Map<Person, PersonViewModel>(person, x => x.Custom(p => p.FullName, p => p.FirstName + " " + p.LastName));
+
+            Assert.AreEqual(123, viewModel.Id);
+            Assert.AreEqual("Steve Smith", viewModel.FullName);
+        }
+
         private class SourceClass
         {
             public SourceClass()
@@ -454,5 +577,58 @@ namespace Gosu.Specs.Commons.Mapping
             public double Double { get; set; }
             public RelatedDTO AnotherRelated { get; set; }
         }
+
+        public class User
+        {
+            public int Id { get; set; }
+            public string Username { get; set; }
+            public string Password { get; set; }
+            public IList<Order> Orders { get; set; }
+        }
+
+        public class Order
+        {
+            public int Id { get; set; }
+            // More properties here ...
+        }
+        
+        public class UserDTO
+        {
+            public int Id { get; set; }
+            public string Username { get; set; }
+            public string Password { get; set; }
+            public OrderDTO[] Orders { get; set; }
+        }
+
+        public class OrderDTO
+        {
+            public int Id { get; set; }
+            // More properties here ...
+        }
+
+        public class UglyThirdPartyClass
+        {
+            public int Prop_IntId { get; set; } 
+            public string Prop_StrName { get; set; } 
+        }
+
+        public class NiceClass
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+    public class Person
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+
+    public class PersonViewModel
+    {
+        public int Id { get; set; }
+        public string FullName { get; set; } 
+    }
     }
 }

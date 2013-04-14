@@ -39,7 +39,16 @@ namespace Gosu.Commons.Mapping
         {
             return Map<TTarget>(source, InitializeConfiguration(configuration));
         }
-        
+
+        /// <summary>
+        /// Creates a new instance of the target type and maps all matching properties
+        /// from the source object to the new object
+        /// </summary>
+        /// <typeparam name="TTarget">The type of the object to map to</typeparam>
+        /// <param name="source">The object to map from</param>
+        /// <param name="configuration">The configuration of how to perform the mapping.
+        /// Could, for example, specify properties to ignore or map differently than the default.</param>
+        /// <returns>A new instance of with properties mapped from the source object</returns>
         public TTarget Map<TTarget>(object source, IObjectMapperConfiguration configuration)
             where TTarget : class, new()
         {
@@ -52,12 +61,28 @@ namespace Gosu.Commons.Mapping
 
             return target;
         }
-        
+
+        /// <summary>
+        /// Creates a new instance of the target type and maps all matching properties
+        /// from the source object to the new object
+        /// </summary>
+        /// <param name="targetType">The type of the object to map to</param>
+        /// <param name="source">The object to map from</param>
+        /// <returns>A new instance of with properties mapped from the source object</returns>
         public object Map(Type targetType, object source)
         {
             return Map(targetType, source, GetConfiguration(source, targetType));
         }
-        
+
+        /// <summary>
+        /// Creates a new instance of the target type and maps all matching properties
+        /// from the source object to the new object
+        /// </summary>
+        /// <param name="targetType">The type of the object to map to</param>
+        /// <param name="source">The object to map from</param>
+        /// <param name="configuration">The configuration of how to perform the mapping.
+        /// Could, for example, specify properties to ignore or map differently than the default.</param>
+        /// <returns>A new instance of with properties mapped from the source object</returns>
         public object Map(Type targetType, object source, IObjectMapperConfiguration configuration)
         {
             if (source == null)
@@ -142,6 +167,14 @@ namespace Gosu.Commons.Mapping
             Map(source, target, config);
         }
 
+        /// <summary>
+        /// Finds all properties which exist in both target and source, and maps
+        /// the values of those properties from the source object to the target object
+        /// </summary>
+        /// <param name="source">The object to map from</param>
+        /// <param name="target">The object to map to</param>
+        /// <param name="config">The configuration of how to perform the mapping.
+        /// Could, for example, specify properties to ignore or map differently than the default.</param>
         public void Map(object source, object target, IObjectMapperConfiguration config)
         {
             // If the source object is a null collection, just let the ordinary mapping handle pushing
@@ -234,6 +267,14 @@ namespace Gosu.Commons.Mapping
             return obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
         }
 
+        /// <summary>
+        /// Creates a configuration that should be used when mapping between the given source and target types
+        /// from now on, for this ObjectMapper instance.
+        /// </summary>
+        /// <param name="configuration">The configuration to use when mapping between TSource and TTarget</param>
+        /// <typeparam name="TSource">The type to map from</typeparam>
+        /// <typeparam name="TTarget">The type to map to</typeparam>
+        /// <returns></returns>
         public ObjectMapper ConfigureMap<TSource, TTarget>(Action<ObjectMapperConfiguration<TSource, TTarget>> configuration)
         {
             var config = InitializeConfiguration(configuration);
