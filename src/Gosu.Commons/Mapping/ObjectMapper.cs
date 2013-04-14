@@ -9,6 +9,8 @@ namespace Gosu.Commons.Mapping
 {
     public class ObjectMapper
     {
+        private readonly IList<Preconfiguration> _configurations = new List<Preconfiguration>();
+
         /// <summary>
         /// Creates a new instance of the target type and maps all matching properties
         /// from the source object to the new object
@@ -19,7 +21,7 @@ namespace Gosu.Commons.Mapping
         public TTarget Map<TTarget>(object source)
             where TTarget : class, new()
         {
-            return Map<TTarget>(source, new NullObjectMapperConfiguration());
+            return Map<TTarget>(source, GetConfiguration(source, typeof(TTarget)));
         }
 
         /// <summary>
@@ -53,7 +55,7 @@ namespace Gosu.Commons.Mapping
         
         public object Map(Type targetType, object source)
         {
-            return Map(targetType, source, new NullObjectMapperConfiguration());
+            return Map(targetType, source, GetConfiguration(source, targetType));
         }
         
         public object Map(Type targetType, object source, IObjectMapperConfiguration configuration)
@@ -120,7 +122,7 @@ namespace Gosu.Commons.Mapping
         /// <param name="target">The object to map to</param>
         public void Map(object source, object target)
         {
-            Map(source, target, new NullObjectMapperConfiguration());
+            Map(source, target, GetConfiguration(source, target.GetType()));
         }
 
         /// <summary>
@@ -230,6 +232,44 @@ namespace Gosu.Commons.Mapping
         private PropertyInfo[] GetProperties(object obj)
         {
             return obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        }
+
+        public ObjectMapper ConfigureMap<TSource, TTarget>(Action<ObjectMapperConfiguration<TSource, TTarget>> configuration)
+        {
+            var config = InitializeConfiguration(configuration);
+
+            var preconfiguration = new Preconfiguration
+                {
+                    SourceType = typeof(TSource),
+                    TargetType = typeof(TTarget),
+                    Configuration = config
+                };
+
+            _configurations.Add(preconfiguration);
+
+            return this;
+        }
+
+        private IObjectMapperConfiguration GetConfiguration(object source, Type targetType)
+        {
+            if (source == null)
+                return new NullObjectMapperConfiguration();
+
+            return GetConfiguration(source.GetType(), targetType);
+        }
+
+        private IObjectMapperConfiguration GetConfiguration(Type sourceType, Type targetType)
+        {
+            var preconfig = _configurations.FirstOrDefault(x => x.SourceType == sourceType && x.TargetType == targetType);
+
+            return preconfig != null ? preconfig.Configuration : new NullObjectMapperConfiguration();
+        }
+
+        private class Preconfiguration
+        {
+            public Type SourceType { get; set; }
+            public Type TargetType { get; set; }
+            public IObjectMapperConfiguration Configuration { get; set; }
         }
     }
 }

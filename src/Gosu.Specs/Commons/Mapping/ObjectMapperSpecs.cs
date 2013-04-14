@@ -300,6 +300,23 @@ namespace Gosu.Specs.Commons.Mapping
             Assert.AreEqual(2.34, secondChildDto.GrandChildren.Last().Double);
         }
 
+        [Test]
+        public void Configurations_can_be_added_beforehand()
+        {
+            // Config that should not be used:
+            _mapper.ConfigureMap<SourceClass, TargetWithMatchingProperties>(x => x.Convention(p => "AnotherPrefixThatDoesntMatch" + p.Name));
+
+            // Config that should be used:
+            _mapper.ConfigureMap<SourceClass, TargetWithDifferentNames>(x => x.Convention(p => "SomeOtherNameFor" + p.Name));
+
+            var target = new TargetWithDifferentNames();
+
+            _mapper.Map(_source, target);
+
+            Assert.AreEqual("string value 1", target.SomeOtherNameForStringProperty1);
+            Assert.AreEqual("string value 2", target.SomeOtherNameForStringProperty2);
+        }
+
         private class SourceClass
         {
             public SourceClass()
