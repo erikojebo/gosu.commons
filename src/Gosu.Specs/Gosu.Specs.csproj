@@ -59,6 +59,7 @@
     <Compile Include="Commons\Mapping\ObjectMapperSpecs.cs" />
     <Compile Include="Commons\Mapping\DynamicToObjectMapperExtensions.cs" />
     <Compile Include="Commons\Parsing\DynamicXmlParserSpecs.cs" />
+    <Compile Include="Commons\Reflection\PropertyNameSpecs.cs" />
     <Compile Include="Commons\Reflection\ReflectionExtensionsSpecs.cs" />
     <Compile Include="NUnit\PropertyChangedAssertionSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
