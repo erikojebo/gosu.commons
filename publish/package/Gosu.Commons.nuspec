@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>Gosu.Commons</id>
-    <version>1.0.9</version>
+    <version>1.1.0</version>
     <authors>Erik Öjebo</authors>
     <owners>Erik Öjebo</owners>
     <projectUrl>https://github.com/erikojebo/gosu.commons/wiki</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Lots of useful stuff for doing all kinds of things in .NET</description>
-    <releaseNotes>Added helper for reading property names from expressions</releaseNotes>
+    <releaseNotes>Added comparer which compares the result of calling lambdas on the two objects</releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>.net helpers utils gosu commons reflection dynamic</tags>
   </metadata>
