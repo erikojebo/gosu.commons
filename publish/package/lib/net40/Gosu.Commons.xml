@@ -117,5 +117,15 @@
             <param name="config">The configuration of how to perform the mapping.
             Could, for example, specify properties to ignore or map differently than the default.</param>
         </member>
+        <member name="M:Gosu.Commons.Mapping.ObjectMapper.ConfigureMap``2(System.Action{Gosu.Commons.Mapping.ObjectMapperConfiguration{``0,``1}})">
+            <summary>
+            Creates a configuration that should be used when mapping between the given source and target types
+            from now on, for this ObjectMapper instance.
+            </summary>
+            <param name="configuration">The configuration to use when mapping between TSource and TTarget</param>
+            <typeparam name="TSource">The type to map from</typeparam>
+            <typeparam name="TTarget">The type to map to</typeparam>
+            <returns></returns>
+        </member>
     </members>
 </doc>
