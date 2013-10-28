@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Commons\Builders\DynamicBuilderSpecs.cs" />
     <Compile Include="Commons\Builders\PropertyValueCollectorSpecs.cs" />
+    <Compile Include="Commons\Comparers\LambdaComparerSpecs.cs" />
     <Compile Include="Commons\Comparers\PropertyComparerSpecs.cs" />
     <Compile Include="Commons\Console\ArgumentListSpecs.cs" />
     <Compile Include="Commons\DataStructures\MaybeSpecs.cs" />

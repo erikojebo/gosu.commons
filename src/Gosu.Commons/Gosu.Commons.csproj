@@ -45,6 +45,7 @@
     <Compile Include="Builders\PropertyValueCollector.cs" />
     <Compile Include="Comparers\ComparerExtensions.cs" />
     <Compile Include="Comparers\ComparerWrapper.cs" />
+    <Compile Include="Comparers\LambdaComparer.cs" />
     <Compile Include="Comparers\PropertyComparer.cs" />
     <Compile Include="Console\ArgumentFlag.cs" />
     <Compile Include="Console\ArgumentList.cs" />
